@@ -1,0 +1,1803 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Umrah Ops Room</title>
+<meta name="description" content="Daily operations for umrah groups in Makkah and Madinah: checklists, rooms, complaints and pilgrims.">
+<meta name="theme-color" content="#06352b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Umrah Ops">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>
+:root { color-scheme: light; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+body { margin: 0; font: 14px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+img { max-width: 100%; }
+[hidden] { display: none !important; }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+<script src="backend.js"></script>
+</head>
+<body>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: emerald header band with khatam (8-point star) lattice and live Makkah clock; sticky pill nav on desktop, fixed bottom app-bar on phone; content in one column of cards. */
+:root {
+  --bg: #eff3f0;
+  --surface: #ffffff;
+  --sunk: #e6ece8;
+  --fg: #0f1f1a;
+  --muted: #5a6b64;
+  --line: #d9e2dd;
+  --accent: #0b5d4b;
+  --accent-ink: #ffffff;
+  --accent-soft: #d6ece4;
+  --brass: #a8761f;
+  --band-1: #06352b; --band-2: #0b5d4b; --band-3: #12806a; --band-ink: #f2faf6;
+  --gold: #9a6a12; --gold-soft: #f6ead0;
+  --ok: #1d7a43; --ok-soft: #daf1e2;
+  --warn: #a35400; --warn-soft: #fce8cd;
+  --bad: #b3261e; --bad-soft: #fadcd8;
+  --mk: #0b5d4b; --mk-soft: #d6ece4;
+  --md: #3550a8; --md-soft: #e0e6f8;
+  --air: #6b4fa3; --air-soft: #ece4f7;
+  --shadow: 0 1px 2px rgba(10, 40, 32, .06), 0 6px 18px -8px rgba(10, 40, 32, .18);
+  --shadow-lift: 0 2px 4px rgba(10, 40, 32, .08), 0 14px 32px -12px rgba(10, 40, 32, .28);
+  --f-display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", sans-serif;
+  --f-body: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --r: 14px;
+  --ease: cubic-bezier(.2, .8, .2, 1);
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0a110f; --surface: #121b18; --sunk: #19241f; --fg: #e3ece8; --muted: #90a39b; --line: #24332e;
+  --accent: #46c9a6; --accent-ink: #04201a; --accent-soft: #143a31; --brass: #e2b45f;
+  --band-1: #041d17; --band-2: #083d32; --band-3: #0d5a49; --band-ink: #eaf6f1;
+  --gold: #e2b45f; --gold-soft: #392c13; --ok: #5ed38c; --ok-soft: #163522; --warn: #f2a54d; --warn-soft: #3b2911;
+  --bad: #f37d73; --bad-soft: #3d1b18; --mk: #46c9a6; --mk-soft: #143a31; --md: #91a6f2; --md-soft: #1e2746;
+  --air: #bb9df2; --air-soft: #2a2040;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 20px -10px rgba(0, 0, 0, .6);
+  --shadow-lift: 0 2px 4px rgba(0, 0, 0, .45), 0 16px 34px -12px rgba(0, 0, 0, .7);
+  color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0a110f; --surface: #121b18; --sunk: #19241f; --fg: #e3ece8; --muted: #90a39b; --line: #24332e;
+  --accent: #46c9a6; --accent-ink: #04201a; --accent-soft: #143a31; --brass: #e2b45f;
+  --band-1: #041d17; --band-2: #083d32; --band-3: #0d5a49; --band-ink: #eaf6f1;
+  --gold: #e2b45f; --gold-soft: #392c13; --ok: #5ed38c; --ok-soft: #163522; --warn: #f2a54d; --warn-soft: #3b2911;
+  --bad: #f37d73; --bad-soft: #3d1b18; --mk: #46c9a6; --mk-soft: #143a31; --md: #91a6f2; --md-soft: #1e2746;
+  --air: #bb9df2; --air-soft: #2a2040;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 20px -10px rgba(0, 0, 0, .6);
+  --shadow-lift: 0 2px 4px rgba(0, 0, 0, .45), 0 16px 34px -12px rgba(0, 0, 0, .7);
+  color-scheme: dark; }
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { background: var(--bg); color: var(--fg); font-family: var(--f-body); font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--band-1); }
+.wrap { max-width: 1120px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+svg.i { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+
+/* ---- header band ---- */
+.band { position: relative; color: var(--band-ink); background:
+  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='0 0 56 56'%3E%3Cg fill='none' stroke='%23fff' stroke-opacity='.11' stroke-width='1'%3E%3Crect x='16' y='16' width='24' height='24'/%3E%3Crect x='16' y='16' width='24' height='24' transform='rotate(45 28 28)'/%3E%3Cpath d='M0 28h7.5M48.5 28H56M28 0v7.5M28 48.5V56'/%3E%3C/g%3E%3C/svg%3E"),
+  radial-gradient(120% 140% at 100% 0%, var(--band-3) 0%, transparent 55%),
+  linear-gradient(160deg, var(--band-1), var(--band-2)); overflow: hidden; }
+.band::after { content: ""; position: absolute; inset: auto 0 0 0; height: 3px; background: linear-gradient(90deg, transparent, var(--brass), transparent); opacity: .7; }
+.band .wrap { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; padding-block: 22px 20px; }
+.title { min-width: 0; }
+.title .kicker { font: 600 .7rem/1 var(--f-body); letter-spacing: .16em; text-transform: uppercase; color: var(--brass); opacity: .95; display: flex; align-items: center; gap: 8px; }
+.title .kicker::before { content: ""; width: 18px; height: 1px; background: currentColor; }
+h1 { font-family: var(--f-display); font-weight: 800; font-size: clamp(1.55rem, 4.5vw, 2.2rem); line-height: 1.05; margin: 8px 0 6px; letter-spacing: -0.02em; text-wrap: balance; }
+.title p { margin: 0; font-size: .85rem; opacity: .78; }
+.clock { display: flex; align-items: center; gap: 14px; background: rgba(255, 255, 255, .08); border: 1px solid rgba(255, 255, 255, .14); border-radius: 16px; padding: 10px 14px; backdrop-filter: blur(6px); }
+.clock .t { font: 700 1.6rem/1 var(--f-mono); letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.clock .colon { animation: blink 2s steps(1) infinite; }
+.clock .meta { display: flex; flex-direction: column; gap: 4px; font-size: .72rem; }
+.clock .meta b { font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--brass); font-size: .64rem; }
+.sync { font-size: .72rem; display: inline-flex; align-items: center; gap: 6px; opacity: .9; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: #9fb3ab; position: relative; }
+.dot.live { background: #5ee39b; }
+.dot.live::after { content: ""; position: absolute; inset: -4px; border-radius: 50%; border: 2px solid #5ee39b; animation: ping 2.4s var(--ease) infinite; }
+.dot.local { background: #f2b35a; }
+
+/* ---- nav ---- */
+nav.tabs { display: flex; gap: 6px; }
+nav.tabs button { font: 600 .86rem var(--f-body); color: var(--muted); background: none; border: 0; border-radius: 999px; padding: 8px 14px; cursor: pointer; white-space: nowrap; display: inline-flex; align-items: center; gap: 8px; position: relative; transition: color .2s, background .2s; }
+nav.tabs button:hover { color: var(--fg); background: var(--sunk); }
+nav.tabs button[aria-selected="true"] { color: var(--accent-ink); background: var(--accent); box-shadow: 0 6px 14px -8px var(--accent); }
+#aduanBadge:not(:empty), #homeBadge:not(:empty) { font: 700 .66rem/1 var(--f-mono); min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px; display: inline-grid; place-items: center; background: var(--bad); color: #fff; }
+#aduanBadge.warn:not(:empty), #homeBadge.warn:not(:empty) { background: var(--warn); }
+.navbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 6; background: color-mix(in srgb, var(--bg) 82%, transparent); backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); }
+.navbar .wrap { padding-block: 10px; overflow-x: auto; scrollbar-width: none; }
+@media (max-width: 720px) {
+  .navbar { position: fixed; top: auto; bottom: 0; left: 0; right: 0; border-bottom: 0; border-top: 1px solid var(--line); background: color-mix(in srgb, var(--surface) 90%, transparent); padding-bottom: env(safe-area-inset-bottom, 0px); box-shadow: 0 -8px 24px -16px rgba(0, 0, 0, .35); }
+  .navbar .wrap { padding-block: 6px; padding-left: max(6px, env(safe-area-inset-left, 0px)); padding-right: max(6px, env(safe-area-inset-right, 0px)); }
+  nav.tabs { justify-content: space-between; gap: 2px; }
+  nav.tabs button { flex: 1 1 0; flex-direction: column; gap: 3px; font-size: .64rem; padding: 6px 2px; border-radius: 12px; min-width: 0; }
+  nav.tabs button span.lbl { overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+  nav.tabs button[aria-selected="true"] { background: var(--accent-soft); color: var(--accent); box-shadow: none; }
+  nav.tabs button svg.i { width: 22px; height: 22px; }
+  #aduanBadge:not(:empty), #homeBadge:not(:empty) { position: absolute; top: 2px; left: calc(50% + 6px); }
+  main { padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)) !important; }
+  .band .wrap { padding-block: 18px 16px; }
+  .clock { width: 100%; justify-content: space-between; }
+}
+
+nav.tabs button:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+main { padding-block: 22px 60px; display: flex; flex-direction: column; gap: 18px; }
+main.enter > * { animation: rise .45s var(--ease) both; }
+main.enter > *:nth-child(2) { animation-delay: .04s; } main.enter > *:nth-child(3) { animation-delay: .08s; }
+main.enter > *:nth-child(4) { animation-delay: .12s; } main.enter > *:nth-child(5) { animation-delay: .16s; } main.enter > *:nth-child(n+6) { animation-delay: .2s; }
+main.enter .cards > *, main.enter .alist > *, main.enter .contacts > * { animation: rise .5s var(--ease) both; }
+main.enter .cards > *:nth-child(2), main.enter .alist > *:nth-child(2), main.enter .contacts > *:nth-child(2) { animation-delay: .1s; }
+main.enter .cards > *:nth-child(3), main.enter .alist > *:nth-child(3), main.enter .contacts > *:nth-child(3) { animation-delay: .15s; }
+main.enter .cards > *:nth-child(n+4), main.enter .alist > *:nth-child(n+4), main.enter .contacts > *:nth-child(n+4) { animation-delay: .2s; }
+
+h2 { font-family: var(--f-display); font-weight: 800; font-size: 1.2rem; margin: 0; letter-spacing: -.01em; text-wrap: balance; }
+.eyebrow { font-size: .68rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.spread { justify-content: space-between; }
+.notice { border: 1px solid var(--line); background: var(--surface); border-radius: var(--r); padding: 12px 14px; font-size: .86rem; color: var(--muted); }
+.notice.warn { background: var(--warn-soft); border-color: transparent; color: var(--warn); font-weight: 500; }
+
+button.btn, .btn { font: 600 .86rem var(--f-body); border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); padding: 8px 14px; cursor: pointer; min-height: 38px; transition: transform .15s var(--ease), background .2s, border-color .2s, box-shadow .2s; }
+.btn:hover:not(:disabled) { border-color: color-mix(in srgb, var(--accent) 40%, var(--line)); }
+.btn:active:not(:disabled) { transform: scale(.97); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); box-shadow: 0 8px 18px -10px var(--accent); }
+.btn.primary:hover:not(:disabled) { filter: brightness(1.08); }
+.btn.ghost { background: transparent; border-color: transparent; color: var(--muted); }
+.btn.ghost:hover:not(:disabled) { background: var(--sunk); color: var(--fg); }
+.btn.small { padding: 5px 11px; min-height: 32px; font-size: .79rem; border-radius: 9px; }
+.btn.danger { color: var(--bad); }
+.btn:disabled { opacity: .45; cursor: default; }
+input, select, textarea { font: 400 .92rem var(--f-body); color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 9px 11px; min-height: 40px; width: 100%; transition: border-color .2s, box-shadow .2s; }
+input:focus, select:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); outline: none; }
+textarea { min-height: 110px; font-family: var(--f-mono); font-size: .8rem; }
+label.f { display: flex; flex-direction: column; gap: 5px; font-size: .74rem; font-weight: 600; color: var(--muted); min-width: 0; }
+
+/* ---- stats ---- */
+.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.stat { background: var(--surface); border-radius: var(--r); padding: 14px; box-shadow: var(--shadow); display: flex; gap: 12px; align-items: flex-start; min-width: 0; position: relative; overflow: hidden; }
+.stat .ico { width: 38px; height: 38px; border-radius: 11px; display: grid; place-items: center; background: var(--tint); color: var(--tone); flex: none; }
+.stat b { display: block; font-family: var(--f-display); font-size: 1.85rem; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1; color: var(--tone); }
+.stat span { display: block; font-size: .76rem; color: var(--fg); font-weight: 600; margin-top: 5px; line-height: 1.25; }
+.stat em { display: block; font-style: normal; font-size: .72rem; color: var(--muted); margin-top: 2px; }
+.stat .bar { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: var(--sunk); }
+.stat .bar i { display: block; height: 100%; background: var(--tone); transition: width .6s var(--ease); }
+.stat.mk { --tone: var(--mk); --tint: var(--mk-soft); } .stat.md { --tone: var(--md); --tint: var(--md-soft); }
+.stat.todo { --tone: var(--warn); --tint: var(--warn-soft); } .stat.air { --tone: var(--air); --tint: var(--air-soft); }
+.stat.todo.zero { --tone: var(--ok); --tint: var(--ok-soft); }
+@media (max-width: 720px) { .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; } .stat { padding: 12px; gap: 10px; } .stat .ico { width: 32px; height: 32px; } .stat b { font-size: 1.5rem; } }
+
+.datebar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.datebar input { width: auto; font-family: var(--f-mono); font-size: .85rem; }
+.datehead { display: flex; flex-direction: column; gap: 2px; }
+.datehead .label { font-family: var(--f-display); font-weight: 800; font-size: 1.35rem; letter-spacing: -.01em; }
+
+/* ---- timeline ---- */
+.timeline { display: flex; flex-direction: column; background: var(--surface); border-radius: var(--r); overflow: hidden; box-shadow: var(--shadow); }
+.ev { display: grid; grid-template-columns: 62px minmax(0, 1fr) auto; gap: 12px; padding: 14px; border-top: 1px solid var(--line); align-items: start; transition: background .25s; }
+.ev:first-child { border-top: 0; }
+.ev.done { background: color-mix(in srgb, var(--ok-soft) 35%, var(--surface)); }
+.ev.done .ev-title { text-decoration: line-through; text-decoration-color: var(--ok); color: var(--muted); }
+.time { font-family: var(--f-mono); font-weight: 700; font-size: .95rem; font-variant-numeric: tabular-nums; padding-top: 1px; color: var(--accent); }
+.time.none { color: var(--muted); font-size: .72rem; font-weight: 500; }
+.ev-title { font-weight: 600; }
+.ev-meta { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 5px; align-items: center; font-size: .78rem; color: var(--muted); }
+.ev-detail { font-size: .8rem; color: var(--muted); margin-top: 5px; }
+.chip { display: inline-flex; align-items: center; gap: 4px; font-size: .7rem; font-weight: 700; border-radius: 999px; padding: 3px 9px; background: var(--sunk); color: var(--fg); white-space: nowrap; line-height: 1.3; }
+.chip.grp { font-family: var(--f-mono); background: var(--fg); color: var(--bg); letter-spacing: .02em; }
+.chip.mk { background: var(--mk-soft); color: var(--mk); } .chip.md { background: var(--md-soft); color: var(--md); }
+.chip.air { background: var(--air-soft); color: var(--air); } .chip.move { background: var(--gold-soft); color: var(--gold); }
+.chip.ok { background: var(--ok-soft); color: var(--ok); } .chip.warn { background: var(--warn-soft); color: var(--warn); } .chip.bad { background: var(--bad-soft); color: var(--bad); }
+.tick { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--line); background: var(--surface); cursor: pointer; display: grid; place-items: center; color: transparent; font-size: 1rem; font-weight: 800; transition: background .2s, border-color .2s, color .2s, transform .15s var(--ease); }
+.tick:hover:not(:disabled) { border-color: var(--ok); color: color-mix(in srgb, var(--ok) 45%, transparent); }
+.tick:active:not(:disabled) { transform: scale(.9); }
+.tick[aria-pressed="true"] { background: var(--ok); border-color: var(--ok); color: var(--surface); }
+.pop { animation: pop .42s var(--ease); }
+.empty { padding: 34px 16px; text-align: center; color: var(--muted); font-size: .9rem; display: flex; flex-direction: column; gap: 14px; align-items: center; }
+.empty svg { width: 64px; height: 64px; color: var(--accent); opacity: .5; animation: spin 40s linear infinite; }
+
+/* ---- cards ---- */
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 14px; }
+.gcard { background: var(--surface); border-radius: var(--r); padding: 0 16px 16px; display: flex; flex-direction: column; gap: 12px; min-width: 0; box-shadow: var(--shadow); overflow: hidden; transition: transform .25s var(--ease), box-shadow .25s; --tint: var(--sunk); --tone: var(--muted); }
+.gcard:hover { transform: translateY(-2px); box-shadow: var(--shadow-lift); }
+.gcard[data-w="MK"] { --tint: var(--mk-soft); --tone: var(--mk); } .gcard[data-w="MD"] { --tint: var(--md-soft); --tone: var(--md); }
+.gcard[data-w="TF"] { --tint: var(--gold-soft); --tone: var(--gold); } .gcard[data-w="AIR"], .gcard[data-w="KL"] { --tint: var(--air-soft); --tone: var(--air); }
+.gcard > header { display: flex; justify-content: space-between; gap: 8px; align-items: start; margin: 0 -16px; padding: 14px 16px; background: linear-gradient(135deg, var(--tint), color-mix(in srgb, var(--tint) 40%, var(--surface))); }
+.gcard h3 { margin: 0; font-family: var(--f-display); font-size: 1.08rem; font-weight: 800; letter-spacing: -.01em; }
+.kv { display: grid; grid-template-columns: 84px minmax(0, 1fr); gap: 6px 12px; font-size: .83rem; margin: 0; }
+.kv dt { color: var(--muted); font-size: .76rem; padding-top: 1px; }
+.kv dd { margin: 0; overflow-wrap: anywhere; }
+.progress { height: 6px; background: var(--sunk); border-radius: 3px; overflow: hidden; }
+.progress i { display: block; height: 100%; background: linear-gradient(90deg, var(--accent), var(--brass)); border-radius: 3px; transition: width .6s var(--ease); }
+.mono { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+
+.panel { background: var(--surface); border-radius: var(--r); padding: 18px; display: flex; flex-direction: column; gap: 14px; box-shadow: var(--shadow); }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+
+.tablebox { overflow-x: auto; background: var(--surface); border-radius: var(--r); box-shadow: var(--shadow); }
+table { width: 100%; border-collapse: collapse; font-size: .85rem; min-width: 680px; }
+th, td { text-align: left; padding: 11px 12px; border-top: 1px solid var(--line); vertical-align: top; }
+tbody tr { transition: background .2s; } tbody tr:hover { background: color-mix(in srgb, var(--sunk) 55%, transparent); }
+th { border-top: 0; font-size: .66rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); background: var(--sunk); font-weight: 700; }
+td.num { font-family: var(--f-mono); font-weight: 700; color: var(--accent); }
+.status-btn { font: 700 .72rem var(--f-body); border-radius: 999px; padding: 5px 11px; border: 0; cursor: pointer; transition: background .2s, color .2s, transform .15s var(--ease); }
+.status-btn:active { transform: scale(.94); }
+.status-btn.kosong { background: var(--sunk); color: var(--muted); } .status-btn.masuk { background: var(--ok-soft); color: var(--ok); } .status-btn.keluar { background: var(--md-soft); color: var(--md); }
+.roomno { width: 92px; min-height: 34px; padding: 5px 8px; font: 700 .9rem var(--f-mono); color: var(--accent); }
+.roomno::placeholder { color: var(--muted); font-weight: 500; font-size: .78rem; }
+.slot { display: block; font: 500 .66rem var(--f-mono); color: var(--muted); margin-top: 3px; }
+.occ { display: flex; flex-direction: column; gap: 2px; }
+.occ .meta { font-size: .72rem; color: var(--muted); }
+.hoteltype b { display: block; font-weight: 600; } .hoteltype span { font-size: .76rem; color: var(--muted); }
+@media (max-width: 720px) {
+  table.rooms { min-width: 0; } table.rooms thead { display: none; }
+  table.rooms tr { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 10px; padding: 12px 14px; border-top: 1px solid var(--line); }
+  table.rooms tr:first-child { border-top: 0; }
+  table.rooms td { padding: 0; border: 0; min-width: 0 !important; }
+  table.rooms td.c-room { grid-column: 1; grid-row: 1; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  table.rooms td.c-status { grid-column: 2; grid-row: 1; justify-self: end; }
+  table.rooms td.c-hotel, table.rooms td.c-occ, table.rooms td.c-act { grid-column: 1 / -1; }
+  table.rooms td.c-group { display: none; }
+  table.rooms .slot { display: inline; margin: 0; }
+}
+.filters { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }
+
+/* ---- aduan ---- */
+.alist { display: flex; flex-direction: column; gap: 12px; }
+.acard { background: var(--surface); border-radius: var(--r); padding: 14px 16px; display: flex; flex-direction: column; gap: 9px; min-width: 0; box-shadow: var(--shadow); position: relative; overflow: hidden; --tone: var(--line); }
+.acard::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--tone); }
+.acard.s-baru { --tone: var(--warn); } .acard.s-tindakan { --tone: var(--md); } .acard.s-selesai { --tone: var(--ok); opacity: .82; }
+.acard.urgent:not(.s-selesai) { --tone: var(--bad); }
+.acard.urgent:not(.s-selesai)::after { content: ""; position: absolute; right: 14px; top: 16px; width: 8px; height: 8px; border-radius: 50%; background: var(--bad); animation: ping-soft 1.8s var(--ease) infinite; }
+.acard .txt { overflow-wrap: anywhere; font-weight: 500; }
+.acard .log { font-size: .8rem; color: var(--muted); border-top: 1px dashed var(--line); padding-top: 8px; display: flex; flex-direction: column; gap: 4px; }
+.acard .log b { color: var(--fg); font-weight: 600; font-family: var(--f-mono); font-size: .74rem; }
+.ta-plain { font-family: var(--f-body); font-size: .9rem; min-height: 76px; }
+.alert-line { display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; background: var(--bad-soft); color: var(--bad); border-radius: var(--r); padding: 11px 14px; font-weight: 600; font-size: .88rem; }
+.alert-line.calm { background: var(--surface); color: var(--muted); font-weight: 500; box-shadow: var(--shadow); }
+.alert-line.amber { background: var(--warn-soft); color: var(--warn); }
+.seg { display: inline-flex; background: var(--sunk); border-radius: 11px; padding: 3px; gap: 2px; max-width: 100%; overflow-x: auto; scrollbar-width: none; }
+.seg button { font: 600 .78rem var(--f-body); border: 0; background: transparent; color: var(--muted); padding: 6px 12px; cursor: pointer; border-radius: 8px; white-space: nowrap; transition: background .2s, color .2s, box-shadow .2s; }
+.seg button[aria-pressed="true"] { background: var(--surface); color: var(--fg); box-shadow: 0 1px 3px rgba(0, 0, 0, .12); }
+
+/* ---- checklist ---- */
+.dayblock { background: var(--surface); border-radius: var(--r); padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; min-width: 0; box-shadow: var(--shadow); transition: box-shadow .25s; }
+.dayblock.today { box-shadow: 0 0 0 2px var(--accent), var(--shadow-lift); }
+.dayblock.past { opacity: .72; }
+.dayhead { display: flex; justify-content: space-between; gap: 10px; align-items: center; }
+.dayhead h3 { margin: 0; font-family: var(--f-display); font-size: 1.05rem; font-weight: 800; }
+.dayhead .sub { font-size: .76rem; color: var(--muted); margin-top: 3px; }
+.ring { --p: 0; width: 46px; height: 46px; border-radius: 50%; flex: none; display: grid; place-items: center; background: conic-gradient(var(--ok) calc(var(--p) * 1%), var(--sunk) 0); }
+.ring span { width: 36px; height: 36px; border-radius: 50%; background: var(--surface); display: grid; place-items: center; font: 700 .68rem var(--f-mono); color: var(--fg); }
+.ring.full span { background: var(--ok); color: var(--surface); }
+.sentrow { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.sentbtn { font: 700 .8rem var(--f-body); border-radius: 10px; border: 1.5px dashed var(--warn); background: var(--warn-soft); color: var(--warn); padding: 7px 12px; cursor: pointer; min-height: 36px; display: inline-flex; align-items: center; gap: 7px; transition: background .25s, color .25s, border-color .25s, transform .15s var(--ease); }
+.sentbtn:active { transform: scale(.97); }
+.sentbtn[aria-pressed="true"] { border: 1.5px solid transparent; background: var(--ok-soft); color: var(--ok); }
+.sentbtn svg.i { width: 16px; height: 16px; }
+.cl { display: flex; flex-direction: column; }
+.cl-item { display: grid; grid-template-columns: 32px 50px minmax(0, 1fr); gap: 10px; align-items: start; padding: 9px 0; border-top: 1px solid var(--line); }
+.cl-item .time { font-size: .84rem; padding-top: 6px; }
+.cl-item .ev-title { padding-top: 4px; font-size: .9rem; transition: color .25s; }
+.cl-item.done .ev-title { text-decoration: line-through; text-decoration-color: var(--ok); color: var(--muted); }
+.tick.sm { width: 30px; height: 30px; font-size: .82rem; }
+.copybox { font-family: var(--f-body); font-size: .82rem; min-height: 170px; }
+.cards.days { grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); }
+@media (max-width: 400px) { .cards, .cards.days { grid-template-columns: minmax(0, 1fr); } }
+
+/* ---- collapsible group list ---- */
+.glist { display: flex; flex-direction: column; gap: 10px; }
+.glist .gcard { padding: 0 16px; gap: 0; }
+.glist .gcard:hover { transform: none; }
+.ghead { all: unset; box-sizing: border-box; cursor: pointer; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 12px; align-items: center; margin: 0 -16px; padding: 13px 16px; background: linear-gradient(135deg, var(--tint), color-mix(in srgb, var(--tint) 30%, var(--surface))); }
+.ghead:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.ghead .l1 { display: flex; align-items: center; gap: 8px; min-width: 0; flex-wrap: wrap; }
+.ghead .l1 h3 { font-size: 1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.ghead .l2 { grid-column: 1 / -1; display: flex; gap: 6px 10px; flex-wrap: wrap; align-items: center; font-size: .76rem; color: var(--muted); }
+.ghead .r { display: flex; align-items: center; gap: 8px; }
+.ghead .chev { width: 28px; height: 28px; border-radius: 9px; display: grid; place-items: center; background: color-mix(in srgb, var(--surface) 70%, transparent); color: var(--tone); transition: transform .3s var(--ease); }
+.ghead[aria-expanded="true"] .chev { transform: rotate(180deg); }
+.ghead .mini { width: 64px; height: 5px; border-radius: 3px; background: color-mix(in srgb, var(--surface) 60%, transparent); overflow: hidden; display: inline-block; vertical-align: middle; }
+.ghead .mini i { display: block; height: 100%; background: var(--tone); }
+.gbody { display: flex; flex-direction: column; gap: 12px; padding: 14px 0 16px; }
+.glist .gcard[data-w="belum"], .glist .gcard[data-w="selesai"] { --tint: var(--sunk); --tone: var(--muted); }
+.gtools { display: flex; justify-content: flex-end; gap: 6px; }
+
+/* ---- collapsible rooms ---- */
+.rlist { display: flex; flex-direction: column; gap: 8px; }
+.rcard { background: var(--surface); border-radius: 12px; box-shadow: var(--shadow); overflow: hidden; --tone: var(--line); position: relative; }
+.rcard::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--tone); }
+.rcard.s-masuk { --tone: var(--ok); } .rcard.s-keluar { --tone: var(--md); }
+.rhead { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 8px; padding-right: 12px; }
+.rtoggle { all: unset; box-sizing: border-box; cursor: pointer; display: grid; grid-template-columns: 62px minmax(0, 1fr) 22px; gap: 10px; align-items: center; padding: 11px 0 11px 14px; min-width: 0; }
+.rtoggle:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; border-radius: 12px; }
+.rno { font: 700 1rem var(--f-mono); color: var(--accent); font-variant-numeric: tabular-nums; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rno.slotonly { color: var(--muted); font-size: .76rem; font-weight: 500; }
+.rmain { min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.rmain .t1 { font-weight: 600; font-size: .9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rmain .t2 { display: flex; gap: 5px; align-items: center; flex-wrap: wrap; font-size: .74rem; color: var(--muted); }
+.rchev { color: var(--muted); transition: transform .3s var(--ease); display: grid; place-items: center; }
+.rtoggle[aria-expanded="true"] .rchev { transform: rotate(180deg); }
+.rnames { display: flex; flex-direction: column; gap: 3px; padding: 0 12px 11px 86px; margin-top: -4px; }
+.rnames .pname { font-size: .84rem; }
+.rnames .pname .nm { color: var(--fg); }
+@media (max-width: 400px) { .rnames { padding-left: 14px; } }
+.rbody { padding: 4px 14px 14px; display: flex; flex-direction: column; gap: 10px; border-top: 1px dashed var(--line); }
+.rbody .lbl { font-size: .7rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+
+/* ---- itinerary ---- */
+.itdays { display: flex; flex-direction: column; gap: 6px; }
+.itday { background: var(--bg); border-radius: 11px; overflow: hidden; }
+.itday.today { box-shadow: 0 0 0 2px var(--accent); }
+.itday.past { opacity: .7; }
+.ithead { all: unset; box-sizing: border-box; cursor: pointer; width: 100%; display: grid; grid-template-columns: 44px minmax(0, 1fr) 22px; gap: 10px; align-items: center; padding: 9px 12px; }
+.ithead:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.ithead[aria-expanded="true"] .rchev { transform: rotate(180deg); }
+.itdate { display: flex; flex-direction: column; align-items: center; line-height: 1; gap: 3px; }
+.itdate b { font: 800 1.15rem var(--f-display); color: var(--accent); }
+.itdate span { font-size: .62rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+.itbody { padding: 2px 12px 12px 66px; display: flex; flex-direction: column; }
+.just { animation: rise .3s var(--ease); }
+.itrow { display: grid; grid-template-columns: 50px minmax(0, 1fr); gap: 10px; padding: 8px 0; border-top: 1px solid var(--line); }
+.itrow:first-of-type { border-top: 0; }
+.itrow.done .ev-title { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--ok); }
+@media (max-width: 480px) { .itbody { padding-left: 12px; } }
+
+.dayedit { gap: 10px; padding-left: 12px !important; }
+.edrow { display: flex; flex-direction: column; gap: 6px; padding: 10px; background: var(--surface); border-radius: 10px; box-shadow: var(--shadow); }
+.edtop { display: grid; grid-template-columns: 104px minmax(0, 1fr) auto; gap: 6px; align-items: center; }
+.edsub { display: grid; grid-template-columns: 120px minmax(0, 1fr) auto; gap: 6px; align-items: center; }
+.edmove { display: flex; gap: 2px; }
+.edrow input, .edrow select { min-height: 36px; padding: 6px 9px; font-size: .86rem; }
+
+/* ---- photos ---- */
+.photos { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 8px; }
+.ph { all: unset; cursor: pointer; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.ph img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 10px; background: var(--sunk); box-shadow: var(--shadow); transition: transform .2s var(--ease); max-width: 100%; }
+.ph:hover img { transform: scale(1.03); } .ph:focus-visible img { outline: 2px solid var(--accent); outline-offset: 2px; }
+.ph span { font-size: .7rem; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.phadd { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.phadd input[type=text] { flex: 1 1 180px; width: auto; }
+.lightbox { position: fixed; inset: 0; z-index: 40; background: rgba(0, 0, 0, .88); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: calc(16px + env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) calc(16px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); animation: fadeIn .2s ease; }
+.lightbox img { max-width: 100%; max-height: 74vh; object-fit: contain; border-radius: 12px; animation: sheetIn .3s var(--ease); }
+.lightbox .cap { color: #fff; font-size: .9rem; text-align: center; max-width: 640px; overflow-wrap: anywhere; }
+.lightbox .cap small { display: block; opacity: .65; margin-top: 3px; }
+.lightbox .row .btn { background: rgba(255, 255, 255, .12); color: #fff; border-color: rgba(255, 255, 255, .2); }
+.fl.cam { background: var(--sunk); color: var(--muted); display: inline-flex; gap: 3px; align-items: center; }
+.fl.cam svg { width: 11px; height: 11px; fill: none; stroke: currentColor; stroke-width: 2.2; }
+
+/* ---- home ---- */
+.hello { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; flex-wrap: wrap; }
+.hello h2 { font-size: 1.5rem; }
+.pend { background: var(--surface); border-radius: var(--r); box-shadow: var(--shadow); overflow: hidden; }
+.pendhead { all: unset; box-sizing: border-box; width: 100%; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 16px; }
+.pendhead:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.pendhead .big { display: flex; align-items: center; gap: 12px; }
+.pendhead .num { min-width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; font: 800 1.2rem var(--f-display); background: var(--bad-soft); color: var(--bad); padding: 0 8px; }
+.pendhead .num.warn { background: var(--warn-soft); color: var(--warn); } .pendhead .num.ok { background: var(--ok-soft); color: var(--ok); }
+.pendhead[aria-expanded="true"] .rchev { transform: rotate(180deg); }
+.plist { display: flex; flex-direction: column; border-top: 1px solid var(--line); }
+.pitem { all: unset; box-sizing: border-box; cursor: pointer; display: grid; grid-template-columns: 10px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 11px 16px; border-top: 1px solid var(--line); }
+.pitem:first-child { border-top: 0; } .pitem:hover { background: color-mix(in srgb, var(--sunk) 55%, transparent); }
+.pitem:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.pitem .dot2 { width: 10px; height: 10px; border-radius: 50%; background: var(--warn); } .pitem .dot2.bad { background: var(--bad); } .pitem .dot2.md { background: var(--md); }
+.pitem .tt { font-weight: 600; font-size: .9rem; overflow-wrap: anywhere; } .pitem .ss { font-size: .76rem; color: var(--muted); margin-top: 2px; overflow-wrap: anywhere; }
+.pitem .go { font-size: .76rem; font-weight: 700; color: var(--accent); white-space: nowrap; }
+.prog { display: flex; flex-direction: column; gap: 10px; }
+.prog .dayhd { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.prog .dayhd h2 span { font-family: var(--f-body); font-size: .85rem; font-weight: 500; color: var(--muted); margin-left: 6px; }
+.pg { display: grid; grid-template-columns: 58px minmax(0, 1fr) auto; gap: 12px; padding: 12px 14px; border-top: 1px solid var(--line); align-items: start; }
+.pg:first-child { border-top: 0; }
+.pg.done .ev-title { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--ok); }
+.pg .st { width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--line); display: grid; place-items: center; font-size: .7rem; font-weight: 800; color: transparent; }
+.pg.done .st { background: var(--ok); border-color: var(--ok); color: var(--surface); }
+
+/* ---- train ---- */
+.trdate { display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1; gap: 3px; width: 50px; height: 50px; border-radius: 12px; background: var(--md-soft); color: var(--md); flex: none; }
+.trdate b { font: 800 1.2rem var(--f-display); } .trdate span { font-size: .6rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.trhead { all: unset; box-sizing: border-box; cursor: pointer; display: grid; grid-template-columns: 50px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 13px 16px; width: 100%; }
+.trhead:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.trhead[aria-expanded="true"] .rchev { transform: rotate(180deg); }
+.trroute { font: 800 1rem var(--f-display); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.trtimes { font: 700 .9rem var(--f-mono); color: var(--md); }
+.tcard { background: var(--surface); border-radius: var(--r); box-shadow: var(--shadow); overflow: hidden; }
+.tcard.today { box-shadow: 0 0 0 2px var(--md), var(--shadow-lift); }
+.tbody { padding: 0 16px 16px; display: flex; flex-direction: column; gap: 10px; border-top: 1px dashed var(--line); padding-top: 12px; }
+.pax { display: flex; flex-direction: column; }
+.paxrow { display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 10px; align-items: center; padding: 7px 0; border-top: 1px solid var(--line); }
+.paxrow:first-child { border-top: 0; }
+.paxrow.on .pname .nm { color: var(--muted); }
+
+/* ---- sign-in + install ---- */
+#login { position: fixed; inset: 0; z-index: 50; background: var(--bg); display: grid; place-items: center; padding: 24px max(16px, env(safe-area-inset-right, 0px)) 24px max(16px, env(safe-area-inset-left, 0px)); overflow-y: auto; }
+.loginbox { width: 100%; max-width: 380px; display: flex; flex-direction: column; gap: 14px; background: var(--surface); padding: 26px 22px; border-radius: 20px; box-shadow: var(--shadow-lift); animation: sheetIn .35s var(--ease); }
+.loginbox h1 { font-family: var(--f-display); font-weight: 800; letter-spacing: -.01em; }
+.loginlogo img { border-radius: 16px; box-shadow: var(--shadow); }
+.installbar { position: fixed; left: max(12px, env(safe-area-inset-left, 0px)); right: max(12px, env(safe-area-inset-right, 0px)); top: calc(12px + env(safe-area-inset-top, 0px)); z-index: 45; background: var(--surface); color: var(--fg); border-radius: 14px; box-shadow: var(--shadow-lift); padding: 10px 12px; display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; font-size: .86rem; animation: sheetIn .3s var(--ease); }
+
+/* ---- quick filters ---- */
+.qfbar { display: flex; flex-wrap: wrap; gap: 6px; }
+.qf { font: 600 .76rem var(--f-body); border-radius: 999px; padding: 6px 11px; border: 1.5px solid transparent; background: var(--sunk); color: var(--fg); cursor: pointer; display: inline-flex; gap: 5px; align-items: center; transition: background .2s, color .2s, border-color .2s, transform .15s var(--ease); }
+.qf b { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+.qf:active { transform: scale(.95); }
+.qf.ok { background: var(--ok-soft); color: var(--ok); } .qf.warn { background: var(--warn-soft); color: var(--warn); } .qf.gold { background: var(--gold-soft); color: var(--gold); }
+.qf.air { background: var(--air-soft); color: var(--air); } .qf.md { background: var(--md-soft); color: var(--md); } .qf.bad { background: var(--bad-soft); color: var(--bad); }
+.qf.zero { opacity: .55; }
+.qf.on { border-color: currentColor; box-shadow: 0 0 0 2px color-mix(in srgb, currentColor 18%, transparent); }
+.qf.on::after { content: "×"; font-weight: 800; margin-left: 2px; }
+
+/* ---- people, search, sheet ---- */
+.pname { all: unset; cursor: pointer; display: inline-flex; flex-wrap: wrap; align-items: center; gap: 4px; padding: 1px 0; border-radius: 6px; }
+.pname:hover .nm { text-decoration: underline; text-decoration-color: var(--accent); }
+.pname:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.fl { font: 700 .6rem/1 var(--f-body); letter-spacing: .04em; text-transform: uppercase; padding: 3px 6px; border-radius: 5px; background: var(--sunk); color: var(--fg); white-space: nowrap; }
+.fl.oku { background: var(--md-soft); color: var(--md); } .fl.vvip { background: var(--gold-soft); color: var(--gold); }
+.fl.wheelchair { background: var(--air-soft); color: var(--air); } .fl.klinik { background: var(--warn-soft); color: var(--warn); }
+.fl.hospital { background: var(--bad-soft); color: var(--bad); } .fl.cerewet { background: color-mix(in srgb, var(--bad-soft) 55%, var(--gold-soft)); color: var(--bad); }
+.fl.child { background: var(--ok-soft); color: var(--ok); } .fl.train { background: var(--md-soft); color: var(--md); } .fl.staff { background: var(--fg); color: var(--bg); }
+.fl.auto { outline: 1px dashed currentColor; outline-offset: -1px; background: transparent; }
+.meal { display: inline-flex; gap: 4px; flex-wrap: wrap; margin-top: 4px; }
+.searchfab { position: fixed; right: max(16px, env(safe-area-inset-right, 0px)); bottom: calc(24px + env(safe-area-inset-bottom, 0px)); z-index: 7; width: 54px; height: 54px; border-radius: 18px; border: 0; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; cursor: pointer; box-shadow: 0 10px 24px -8px var(--accent), var(--shadow-lift); transition: transform .2s var(--ease); }
+.searchfab:hover { transform: translateY(-2px) scale(1.04); } .searchfab svg.i { width: 24px; height: 24px; }
+@media (max-width: 720px) { .searchfab { bottom: calc(84px + env(safe-area-inset-bottom, 0px)); width: 50px; height: 50px; } }
+.sheet-bg { position: fixed; inset: 0; z-index: 30; background: rgba(4, 20, 16, .48); backdrop-filter: blur(3px); display: flex; align-items: flex-start; justify-content: center; padding: calc(24px + env(safe-area-inset-top, 0px)) max(12px, env(safe-area-inset-right, 0px)) calc(24px + env(safe-area-inset-bottom, 0px)) max(12px, env(safe-area-inset-left, 0px)); animation: fadeIn .2s ease; overflow-y: auto; }
+.sheet { width: 100%; max-width: 640px; background: var(--bg); border-radius: 20px; box-shadow: var(--shadow-lift); display: flex; flex-direction: column; gap: 14px; padding: 18px; animation: sheetIn .32s var(--ease); min-width: 0; }
+.sheet-head { display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; }
+.sheet-head h2 { font-size: 1.15rem; overflow-wrap: anywhere; }
+.sres { display: flex; flex-direction: column; gap: 8px; }
+.sitem { all: unset; box-sizing: border-box; cursor: pointer; background: var(--surface); border-radius: 12px; padding: 11px 13px; display: flex; flex-direction: column; gap: 4px; box-shadow: var(--shadow); transition: transform .15s var(--ease); }
+.sitem:hover { transform: translateX(3px); } .sitem:focus-visible { outline: 2px solid var(--accent); }
+.sitem .top { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; font-weight: 700; }
+.sitem .sub { font-size: .76rem; color: var(--muted); }
+.stay { background: var(--surface); border-radius: 12px; padding: 11px 13px; display: flex; flex-direction: column; gap: 4px; box-shadow: var(--shadow); }
+.stay b { font-family: var(--f-mono); color: var(--accent); }
+.flagpick { display: flex; flex-wrap: wrap; gap: 8px; }
+.flagpick button { font: 600 .82rem var(--f-body); border-radius: 10px; border: 1.5px solid var(--line); background: var(--surface); color: var(--fg); padding: 8px 12px; cursor: pointer; transition: background .2s, border-color .2s, color .2s; }
+.flagpick button[aria-pressed="true"] { border-color: currentColor; }
+.flagpick button[data-f="oku"][aria-pressed="true"] { background: var(--md-soft); color: var(--md); } .flagpick button[data-f="vvip"][aria-pressed="true"] { background: var(--gold-soft); color: var(--gold); }
+.flagpick button[data-f="train"][aria-pressed="true"] { background: var(--md-soft); color: var(--md); }
+.flagpick button[data-f="wheelchair"][aria-pressed="true"] { background: var(--air-soft); color: var(--air); } .flagpick button[data-f="klinik"][aria-pressed="true"] { background: var(--warn-soft); color: var(--warn); }
+.flagpick button[data-f="hospital"][aria-pressed="true"], .flagpick button[data-f="cerewet"][aria-pressed="true"] { background: var(--bad-soft); color: var(--bad); }
+.attn { display: flex; flex-direction: column; background: var(--surface); border-radius: var(--r); box-shadow: var(--shadow); overflow: hidden; }
+.attn > div { display: grid; grid-template-columns: 62px minmax(0, 1fr); gap: 12px; padding: 11px 14px; border-top: 1px solid var(--line); align-items: start; }
+.attn > div:first-child { border-top: 0; }
+.wcrow { display: flex; gap: 8px; flex-wrap: wrap; }
+.tgbtn { background: #229ED9 !important; border-color: #229ED9 !important; color: #fff !important; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; }
+@keyframes fadeIn { from { opacity: 0; } }
+@keyframes sheetIn { from { opacity: 0; transform: translateY(18px) scale(.98); } }
+
+/* ---- contacts ---- */
+.contacts { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.contact { background: var(--surface); border-radius: var(--r); padding: 14px; display: flex; gap: 12px; align-items: center; box-shadow: var(--shadow); }
+.contact .av { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; font: 800 .9rem var(--f-display); background: var(--accent-soft); color: var(--accent); flex: none; }
+.contact .who { min-width: 0; flex: 1; }
+.contact .who b { display: block; font-size: .9rem; }
+.contact .who span { font-size: .74rem; color: var(--muted); }
+.contact .tel { font-family: var(--f-mono); font-size: .86rem; user-select: all; margin-top: 2px; }
+
+.toast { position: fixed; left: 50%; bottom: calc(22px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--fg); color: var(--bg); padding: 11px 18px; border-radius: 999px; font-size: .84rem; font-weight: 600; z-index: 20; max-width: calc(100% - 32px); box-shadow: var(--shadow-lift); animation: toastIn .35s var(--ease); }
+@media (max-width: 720px) { .toast { bottom: calc(86px + env(safe-area-inset-bottom, 0px)); } }
+
+@keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes pop { 0% { transform: scale(.7); } 55% { transform: scale(1.18); } 100% { transform: scale(1); } }
+@keyframes ping { 0% { transform: scale(.6); opacity: .9; } 80%, 100% { transform: scale(1.8); opacity: 0; } }
+@keyframes ping-soft { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--bad) 60%, transparent); } 70%, 100% { box-shadow: 0 0 0 8px transparent; } }
+@keyframes blink { 50% { opacity: .25; } }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes toastIn { from { opacity: 0; transform: translate(-50%, 12px); } to { opacity: 1; transform: translate(-50%, 0); } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+</style>
+
+<header class="band">
+  <div class="wrap">
+    <div class="title">
+      <div class="kicker">Makkah · Madinah · Taif</div>
+      <h1>Umrah Ops Room</h1>
+      <p>Every group, room and complaint on one screen</p>
+    </div>
+    <div class="clock" aria-label="Makkah time">
+      <div class="t" id="mkTime">--:--</div>
+      <div class="meta"><b>Makkah time</b><span id="mkDate"></span><span class="sync" id="sync"><span class="dot" id="syncDot"></span><span id="syncText">Connecting…</span></span></div>
+    </div>
+  </div>
+</header>
+<div class="navbar">
+  <div class="wrap">
+    <nav class="tabs" role="tablist">
+      <button role="tab" id="tab-home" aria-selected="true" data-view="home"><svg class="i" viewBox="0 0 24 24"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg><span class="lbl">Home</span><span id="homeBadge"></span></button>
+      <button role="tab" id="tab-hari" aria-selected="false" data-view="hari"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18M9 15l2 2 4-4"/></svg><span class="lbl">Checklist</span></button>
+      <button role="tab" id="tab-group" aria-selected="false" data-view="group"><svg class="i" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.6 3.3-5.5 6.5-5.5s5.9 1.9 6.5 5.5M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14.8c2 .7 3.2 2.4 3.5 5.2"/></svg><span class="lbl">Groups</span></button>
+      <button role="tab" id="tab-bilik" aria-selected="false" data-view="bilik"><svg class="i" viewBox="0 0 24 24"><path d="M3 19V6M3 15h18v4M21 15v-3a3 3 0 0 0-3-3h-7v6"/><circle cx="7" cy="11.5" r="2"/></svg><span class="lbl">Rooms</span></button>
+      <button role="tab" id="tab-aduan" aria-selected="false" data-view="aduan"><svg class="i" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M12 8v3.5M12 13.6v.01"/></svg><span class="lbl">Complaints</span><span id="aduanBadge"></span></button>
+      <button role="tab" id="tab-jadual" aria-selected="false" data-view="jadual"><svg class="i" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/></svg><span class="lbl">Itinerary</span></button>
+    </nav>
+  </div>
+</div>
+
+<main class="wrap" id="main"></main>
+<div class="toast" id="toast" hidden></div>
+<button class="searchfab" id="searchFab" data-act="openSearch" aria-label="Search pilgrims"><svg class="i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg></button>
+<div id="sheet"></div>
+<div id="lightbox"></div>
+<input type="file" id="photoInput" accept="image/*" hidden>
+
+<script>
+/* ---------- Itinerary templates (from the ATURCARA PDFs) ---------- */
+const MECCA_ZIARAH = "Jabal Thur, Jabal Rahmah, Masjid Ji'ranah, then past Arafah, Muzdalifah, Mina, Jamrah and Jabal Nur.";
+const NABAWI_ZIARAH = "Prophet's grave (with Abu Bakr & Umar), Baqi', Saqifah Bani Sa'idah, Souq Manakhah, Masjid Ghumamah, Masjid Abu Bakr & Ali.";
+const MADINAH_ZIARAH = "Masjid Quba', Mount Uhud, past Masjid Qiblatain and the Seven Mosques, date market.";
+/* MH 30 NOV 2026: 12D/10N, Makkah 6 + Madinah 4 (Makkah first) */
+const TPL_MK = [
+  { day: 0, where: "KL", items: [
+    { t: "15:00", a: "Assemble at KLIA Level 5", d: "Check-in, briefing, passports & boarding passes handed out. Be in ihram.", tr: "—" },
+    { t: "19:00", a: "Depart for Jeddah", d: "Make umrah niyyah 1½ hours before landing.", tr: "MH 156", k: "air" },
+    { t: "23:40", a: "Arrive Jeddah: immigration, baggage, customs", d: "Report any missing baggage.", tr: "—", k: "air" } ] },
+  { day: 1, where: "MK", items: [
+    { t: "01:30", a: "Leave Jeddah for Makkah", tr: "Bus", k: "move" },
+    { t: "03:30", a: "Arrive Makkah hotel, check in", d: "Official check-in is 17:00. Make sure rooms are ready or a transit room is arranged.", tr: "Bus", k: "in" },
+    { t: "", a: "First umrah (led by mutawwif)", d: "Then free time / umrah debrief.", tr: "Walk" } ] },
+  { day: 2, where: "MK", items: [ { t: "07:00", a: "Makkah ziarah + umrah from Ji'ranah", d: MECCA_ZIARAH, tr: "Bus" } ] },
+  { day: 3, where: "MK", items: [ { t: "07:00", a: "Extra umrah (miqat Hudaibiah)", tr: "Bus" } ] },
+  { day: 4, where: "MK", items: [ { t: "", a: "Free time (Friday)", tr: "—" } ] },
+  { day: 5, where: "MK", items: [ { t: "07:00", a: "Extra umrah (miqat Tan'eem) / Taif trip", d: "Taif for those who signed up.", tr: "Bus" } ] },
+  { day: 6, where: "MD", items: [
+    { t: "09:00", a: "Check out of Makkah, leave for Madinah (447 km)", d: "Luggage down to the lobby by 08:30.", tr: "Bus", k: "out" },
+    { t: "15:00", a: "Arrive Madinah, hotel check-in", tr: "Bus", k: "in" } ] },
+  { day: 7, where: "MD", items: [ { t: "07:00", a: "Ziarah inside Masjid Nabawi", d: NABAWI_ZIARAH, tr: "Walk" } ] },
+  { day: 8, where: "MD", items: [ { t: "07:00", a: "Madinah ziarah", d: MADINAH_ZIARAH, tr: "Bus" } ] },
+  { day: 9, where: "MD", items: [
+    { t: "14:20", a: "Raudhah (men)", d: "Nusuk permit required.", tr: "Walk" },
+    { t: "21:20", a: "Raudhah (women)", d: "Nusuk permit required.", tr: "Walk" } ] },
+  { day: 10, where: "AIR", items: [
+    { t: "14:00", a: "Check out of Madinah hotel, go to airport", tr: "Bus", k: "out" },
+    { t: "17:30", a: "At Prince Mohammed bin Abdulaziz Airport", d: "Check-in, passports & boarding passes.", tr: "—", k: "air" },
+    { t: "21:30", a: "Depart for Kuala Lumpur", tr: "MH 159", k: "air" } ] },
+  { day: 11, where: "KL", items: [ { t: "11:15", a: "Arrive Kuala Lumpur", d: "Domestic connections for those who need them.", tr: "—", k: "air" } ] },
+];
+/* SV 04 DEC 2026: 12D/11N, Taif 1 + Makkah 6 + Madinah 4 (Taif first). Day 0 = KLIA assembly the night before. */
+const TPL_TF = [
+  { day: 0, lbl: "Assembly", where: "KL", items: [
+    { t: "22:15", a: "Assemble at KLIA Level 5", d: "Check-in, briefing, passports & boarding passes handed out.", tr: "—" } ] },
+  { day: 1, where: "TF", items: [
+    { t: "02:15", a: "Depart for Jeddah", tr: "SV 841", k: "air" },
+    { t: "06:25", a: "Arrive Jeddah: immigration, baggage, customs", d: "Report any missing baggage.", tr: "—", k: "air" },
+    { t: "08:25", a: "Leave for Taif", d: "Breakfast, Taif sightseeing, lunch.", tr: "Bus", k: "move" },
+    { t: "", a: "Check in to Taif hotel, dinner", tr: "—", k: "in" } ] },
+  { day: 2, where: "MK", items: [
+    { t: "", a: "Breakfast, check out of Taif hotel", tr: "—", k: "out" },
+    { t: "", a: "Taif ziarah", d: "Shubra Palace, Masjid Abbas, Al Shareef Museum, rose gardens, Masjid Al Koa, Masjid Al Madhon, fruit market.", tr: "Bus" },
+    { t: "", a: "Qarnul Manazil: put on ihram, leave for Makkah", tr: "Bus", k: "move" },
+    { t: "", a: "Arrive Makkah, hotel check-in", tr: "Bus", k: "in" },
+    { t: "", a: "First umrah (led by mutawwif)", tr: "Walk" } ] },
+  { day: 3, where: "MK", items: [ { t: "", a: "Free time", tr: "—" } ] },
+  { day: 4, where: "MK", items: [ { t: "07:00", a: "Makkah ziarah + umrah from Ji'ranah", d: MECCA_ZIARAH, tr: "Bus" } ] },
+  { day: 5, where: "MK", items: [ { t: "07:00", a: "Extra umrah (miqat Hudaibiah)", tr: "Bus" } ] },
+  { day: 6, where: "MK", items: [ { t: "07:00", a: "Extra umrah (miqat Tan'eem)", tr: "Bus" } ] },
+  { day: 7, where: "MK", items: [ { t: "", a: "Free time", tr: "—" } ] },
+  { day: 8, where: "MD", items: [
+    { t: "12:00", a: "Check out of Makkah hotel", d: "Official check-out time. Keep luggage in the lobby until the bus arrives.", tr: "—", k: "out" },
+    { t: "15:00", a: "Leave for Madinah (447 km)", tr: "Bus", k: "move" },
+    { t: "21:00", a: "Arrive Madinah, hotel check-in", tr: "Bus", k: "in" } ] },
+  { day: 9, where: "MD", items: [
+    { t: "07:00", a: "Ziarah inside Masjid Nabawi", d: NABAWI_ZIARAH, tr: "Walk" },
+    { t: "14:20", a: "Raudhah (men)", d: "Nusuk permit required.", tr: "Walk" },
+    { t: "21:20", a: "Raudhah (women)", d: "Nusuk permit required.", tr: "Walk" } ] },
+  { day: 10, where: "MD", items: [ { t: "07:00", a: "Madinah ziarah", d: MADINAH_ZIARAH, tr: "Bus" } ] },
+  { day: 11, where: "MD", items: [
+    { t: "12:00", a: "Check out of Madinah hotel", d: "Official check-out time. Bus to the airport at 21:25.", tr: "—", k: "out" },
+    { t: "21:25", a: "Leave for Prince Mohammed bin Abdulaziz Airport", tr: "Bus", k: "move" },
+    { t: "22:25", a: "At Madinah airport: check-in", d: "Passports & boarding passes.", tr: "—", k: "air" } ] },
+  { day: 12, where: "AIR", items: [
+    { t: "02:25", a: "Depart for Kuala Lumpur", tr: "SV 834", k: "air" },
+    { t: "15:55", a: "Arrive Kuala Lumpur", d: "Domestic connections for those who need them.", tr: "—", k: "air" } ] },
+];
+/* MH 17 DEC 2026: 12D/10N, Madinah 4 + Makkah 6 (Madinah first) */
+const TPL_MD = [
+  { day: 0, where: "MD", items: [
+    { t: "05:40", a: "Assemble at KLIA Level 5", d: "Check-in, briefing, passports & boarding passes handed out.", tr: "—" },
+    { t: "09:40", a: "Depart for Madinah", tr: "MH 152", k: "air" },
+    { t: "14:10", a: "Arrive Madinah: immigration, baggage, customs", d: "Report any missing baggage.", tr: "—", k: "air" },
+    { t: "16:00", a: "Leave for hotel", tr: "Bus", k: "move" },
+    { t: "17:00", a: "Arrive Madinah hotel, check in", tr: "Bus", k: "in" } ] },
+  { day: 1, where: "MD", items: [ { t: "07:00", a: "Ziarah inside Masjid Nabawi", d: NABAWI_ZIARAH, tr: "Walk" } ] },
+  { day: 2, where: "MD", items: [ { t: "07:00", a: "Madinah ziarah", d: MADINAH_ZIARAH, tr: "Bus" } ] },
+  { day: 3, where: "MD", items: [
+    { t: "14:20", a: "Raudhah (men)", d: "Nusuk permit required.", tr: "Walk" },
+    { t: "21:20", a: "Raudhah (women)", d: "Nusuk permit required.", tr: "Walk" } ] },
+  { day: 4, where: "MK", items: [
+    { t: "09:00", a: "Check out of Madinah, leave for Makkah (447 km)", d: "Be in ihram. Make umrah niyyah at Bir Ali (15 km).", tr: "Bus", k: "out" },
+    { t: "15:00", a: "Arrive Makkah, hotel check-in", tr: "Bus", k: "in" },
+    { t: "", a: "First umrah (led by mutawwif)", tr: "Walk" } ] },
+  { day: 5, where: "MK", items: [ { t: "", a: "Free time / umrah debrief", tr: "—" } ] },
+  { day: 6, where: "MK", items: [ { t: "07:00", a: "Makkah ziarah + umrah from Ji'ranah", d: MECCA_ZIARAH, tr: "Bus" } ] },
+  { day: 7, where: "MK", items: [ { t: "07:00", a: "Extra umrah (miqat Hudaibiyah)", tr: "Bus" } ] },
+  { day: 8, where: "MK", items: [ { t: "", a: "Free time (Friday)", tr: "—" } ] },
+  { day: 9, where: "MK", items: [ { t: "07:00", a: "Extra umrah (miqat Tan'eem) / Taif trip", d: "Taif for those who signed up.", tr: "Bus" } ] },
+  { day: 10, where: "AIR", items: [
+    { t: "12:00", a: "Check out of Makkah hotel, go to King Abdulaziz Airport, Jeddah", tr: "Bus", k: "out" },
+    { t: "14:55", a: "At Jeddah airport: check-in", d: "Passports & boarding passes.", tr: "—", k: "air" },
+    { t: "19:10", a: "Depart for Kuala Lumpur", tr: "MH 151", k: "air" } ] },
+  { day: 11, where: "KL", items: [ { t: "09:10", a: "Arrive Kuala Lumpur", d: "Domestic connections for those who need them.", tr: "—", k: "air" } ] },
+];
+const TEMPLATES = {
+  "MH-MK": { name: "Makkah first · 12D/10N", desc: "Makkah 6 nights + Madinah 4 nights", anchor: "KLIA departure date (Day 1)", days: TPL_MK },
+  "SV-TF": { name: "Taif first · 12D/11N", desc: "Taif 1 + Makkah 6 + Madinah 4 nights", anchor: "KLIA assembly date (the night before Day 1)", days: TPL_TF },
+  "MH-MD": { name: "Madinah first · 12D/10N", desc: "Madinah 4 nights + Makkah 6 nights", anchor: "KLIA departure date (Day 1)", days: TPL_MD },
+};
+function tplOf(g) {
+  if (g && Array.isArray(g.jadual) && g.jadual.length) return g.jadual;
+  const base = (TEMPLATES[g && g.pakej] || TEMPLATES["MH-MK"]).days;
+  return g && g.transfer === "train" ? applyTrain(base, g) : base;
+}
+/* Swap the 447 km bus transfer for the Haramain high-speed train. */
+function applyTrain(days, g) {
+  return days.map(d => {
+    if (!d.items.some(it => /447 km/.test(it.a))) return d;
+    const dest = d.where === "MK" ? "Makkah" : "Madinah"; const from = dest === "Makkah" ? "Madinah" : "Makkah";
+    const items = [];
+    d.items.forEach(it => {
+      if (/447 km/.test(it.a)) {
+        const ihram = dest === "Makkah" ? "Be in ihram before boarding. Make niyyah when the train passes the miqat (announced on board)." : "";
+        items.push({ t: it.t, a: it.k === "out" ? `Check out of ${from}, bus to Haramain station` : `Bus to Haramain station, ${from}`, tr: "Bus", k: it.k === "out" ? "out" : "move", ...(ihram ? { d: ihram } : {}) });
+        items.push({ t: g.trainDep || "", a: `Haramain train to ${dest}`, tr: "Train" + (g.trainNo ? " " + g.trainNo : ""), k: "train", ...(g.trainNota ? { d: g.trainNota } : {}) });
+        items.push({ t: g.trainArr || "", a: `Arrive ${dest} Haramain station, bus to hotel`, tr: "Bus", k: "move" });
+      } else if (it.k === "in" && /Arrive/.test(it.a)) items.push({ ...it, t: "", tr: "Bus" });
+      else items.push(it);
+    });
+    return { ...d, lbl: dayLabel(d), items };
+  });
+}
+function dayLabel(d) { return d.lbl || ("Day " + (TPL_TF.includes(d) ? d.day : d.day + 1)); }
+/* Staff contacts live in the database (settings/contacts), not in this public file. */
+let CONTACTS = [];
+const PETUGAS_ROLE = { MK: /makkah/i, MD: /madinah/i, TF: /makkah/i };
+
+const IC = {
+  kaaba: '<svg class="i" viewBox="0 0 24 24"><path d="M4 7l8-4 8 4v10l-8 4-8-4z"/><path d="M4 7l8 4 8-4M12 11v10M4 10.5l8 4 8-4"/></svg>',
+  dome: '<svg class="i" viewBox="0 0 24 24"><path d="M5 20v-8a7 7 0 0 1 14 0v8M3 20h18M12 5V2.5M10 20v-4a2 2 0 0 1 4 0v4"/></svg>',
+  send: '<svg class="i" viewBox="0 0 24 24"><path d="M21 3L3 10.5l7 2.5 2.5 7z"/><path d="M10 13L21 3"/></svg>',
+  list: '<svg class="i" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M9 11l2 2 4-4M9 17h6"/></svg>',
+  check: '<svg class="i" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+  star: '<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="16" y="16" width="32" height="32"/><rect x="16" y="16" width="32" height="32" transform="rotate(45 32 32)"/><circle cx="32" cy="32" r="7"/></svg>',
+};
+
+/* ---------- state ---------- */
+const S = {
+  view: "home", date: "", groups: [], rooms: [], progress: {}, aduan: [], aduanFilter: { st: "buka", g: "", k: "" }, aduanPrefill: null, noteOpen: null,
+  hariMode: "group", groupFilter: "aktif", openG: {}, openR: {}, openIt: {}, openDay: {}, itFilter: "aktif", board: {}, openTr: {}, trFilter: "up", editDay: null, editDraft: null, showGroupForm: false, clGroup: null, copyOpen: null, tpl: "MH-MK", pop: null, lastView: null, jemaah: {}, sheet: null, sq: "",
+  mode: "loading", readOnly: false, editing: null, roomFilter: { g: "", h: "", q: "", c: "", m: "", f: "", s: "", n: "" }, showImport: false, showRoomForm: false,
+};
+let db = null; let assetsNs = null;
+const LS_KEY = "umrah-ops-local-v1";
+
+/* Dates: "today" and timestamps follow Makkah time (Asia/Riyadh) whatever the phone is set to. */
+const TZ = "Asia/Riyadh";
+function mkParts(d = new Date()) {
+  try { const o = {}; new Intl.DateTimeFormat("en-GB", { timeZone: TZ, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).formatToParts(d).forEach(p => { o[p.type] = p.value; }); return o; }
+  catch (e) { return { year: String(d.getFullYear()), month: String(d.getMonth() + 1).padStart(2, "0"), day: String(d.getDate()).padStart(2, "0"), hour: String(d.getHours()).padStart(2, "0"), minute: String(d.getMinutes()).padStart(2, "0") }; }
+}
+function todayStr() { const p = mkParts(); return p.year + "-" + p.month + "-" + p.day; }
+function parseD(s) { const [y, m, d] = s.split("-").map(Number); return new Date(Date.UTC(y, m - 1, d)); }
+function addDays(s, n) { const d = parseD(s); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); }
+function diffDays(a, b) { return Math.round((parseD(a) - parseD(b)) / 86400000); }
+const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const DAYS_L = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+function fmtD(s) { const d = parseD(s); return DAYS_L[d.getUTCDay()] + ", " + d.getUTCDate() + " " + MONTHS[d.getUTCMonth()] + " " + d.getUTCFullYear(); }
+function fmtShort(s) { const d = parseD(s); return d.getUTCDate() + " " + MONTHS[d.getUTCMonth()]; }
+function fmtTs(iso) { if (!iso) return ""; const d = new Date(iso); if (isNaN(d)) return ""; const p = mkParts(d); return (+p.day) + " " + MONTHS[+p.month - 1] + " " + p.hour + ":" + p.minute; }
+function ageTxt(iso) { const m = Math.round((Date.now() - new Date(iso)) / 60000); if (!(m >= 0)) return ""; if (m < 60) return m + " min ago"; if (m < 1440) return Math.floor(m / 60) + " h ago"; return Math.floor(m / 1440) + " d ago"; }
+function esc(v) { return String(v ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+function gById(id) { return S.groups.find(g => g.id === id); }
+function initials(n) { return String(n || "?").replace(/^(Ustaz|Ust|Hj|En|Haji)\s+/gi, "").replace(/^(Hj|Haji)\s+/i, "").split(/\s+/).slice(0, 2).map(w => w[0] || "").join("").toUpperCase(); }
+
+function groupDay(g, date) { if (!g.tarikh) return null; const n = diffDays(date, g.tarikh); return n >= 0 && n < tplOf(g).length ? n : null; }
+function groupWhere(g, date) { const n = groupDay(g, date); if (n === null) return diffDays(date, g.tarikh || date) < 0 ? "belum" : "selesai"; return tplOf(g)[n].where; }
+function hotelFor(g, where) { return where === "MK" ? g.hotelMakkah : where === "MD" ? g.hotelMadinah : where === "TF" ? g.hotelTaif : ""; }
+function cityRooms(g, city) { return S.rooms.filter(r => r.groupId === g.id && r.bandar === city); }
+function pKey(gid, day, i) { return "d" + day + "i" + i; }
+function prog(gid) { const p = S.progress[gid] || {}; if (p.done || p.sent) return { done: p.done || {}, sent: p.sent || {} }; return { done: p, sent: {} }; }
+function isDone(gid, day, i) { return !!prog(gid).done[pKey(gid, day, i)]; }
+function isSent(gid, n) { return !!prog(gid).sent["d" + n]; }
+function isActive(g) { return !g.arkib; }
+function groupPct(g) { let total = 0, done = 0; tplOf(g).forEach(d => d.items.forEach((_, i) => { total++; if (isDone(g.id, d.day, i)) done++; })); return total ? Math.round(done / total * 100) : 0; }
+function pkgName(g) { return (TEMPLATES[g.pakej] || TEMPLATES["MH-MK"]).name; }
+
+/* ---------- storage ---------- */
+const writeChains = {};
+function chain(path, fn) { const p = (writeChains[path] || Promise.resolve()).then(fn, fn); writeChains[path] = p.catch(() => {}); return p; }
+function onWriteError(e) {
+  if (e && (e.code === "invalid_argument" || e.code === "not_granted")) { S.readOnly = true; toast("You can only view this page. Ask the owner for Editor access."); render(); }
+  else if (e && e.code === "quota_exceeded") toast("Storage is full. Delete old records first.");
+  else toast("Couldn't save. Try again in a moment.");
+}
+function saveLocal() { try { localStorage.setItem(LS_KEY, JSON.stringify({ groups: S.groups, rooms: S.rooms, progress: S.progress, aduan: S.aduan, jemaah: S.jemaah, board: S.board })); } catch (e) {} }
+async function putDoc(col, id, data) {
+  if (S.readOnly) return;
+  if (db) return chain(col + "/" + id, () => db.collection(col).doc(id).set(data)).catch(onWriteError);
+  if (col === "progress") S.progress[id] = { done: data.done || {}, sent: data.sent || {} };
+  else if (col === "jemaah") S.jemaah[id] = { ...data, id };
+  else if (col === "keretapi") S.board[id] = data.naik || {};
+  else { const list = col === "groups" ? S.groups : col === "rooms" ? S.rooms : S.aduan; const i = list.findIndex(x => x.id === id); if (i >= 0) list[i] = { ...data, id }; else list.push({ ...data, id }); }
+  saveLocal(); render();
+}
+async function delDoc(col, id) {
+  if (S.readOnly) return;
+  if (db) return chain(col + "/" + id, () => db.collection(col).doc(id).delete()).catch(onWriteError);
+  if (col === "groups") S.groups = S.groups.filter(x => x.id !== id);
+  if (col === "rooms") S.rooms = S.rooms.filter(x => x.id !== id);
+  if (col === "aduan") S.aduan = S.aduan.filter(x => x.id !== id);
+  if (col === "progress") delete S.progress[id];
+  saveLocal(); render();
+}
+function newId(prefix) { return prefix + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+
+async function boot() {
+  render();
+  let dbNs = null;
+  try { dbNs = window.claude && window.claude.use ? await window.claude.use("db") : null; } catch (e) { dbNs = null; }
+  if (window.claude && window.claude.use) window.claude.use("assets").then(a => { assetsNs = a; if (S.sheet && S.sheet.type === "person") renderPhotos(S.sheet.id); }).catch(() => {});
+  if (!dbNs) { startLocal(); return; }
+  db = dbNs;
+  try { const user = await window.claude.use("user"); if (user) { const w = await user.can("data.write"); if (w === false) S.readOnly = true; } } catch (e) {}
+  const firstLive = { groups: false, rooms: false, progress: false, aduan: false, jemaah: false, keretapi: false };
+  const timer = setTimeout(() => { if (S.mode === "loading" || S.mode === "syncing") { S.mode = "slow"; render(); } }, 10000);
+  const settle = (k, snap) => { if (!snap.metadata.fromCache) firstLive[k] = true; if (Object.values(firstLive).every(Boolean)) { clearTimeout(timer); S.mode = "live"; } else if (S.mode === "loading") S.mode = "syncing"; };
+  const fail = () => { clearTimeout(timer); S.mode = "error"; render(); };
+  db.collection("groups").onSnapshot(snap => { S.groups = snap.docs.map(d => ({ ...d.data(), id: d.id })); settle("groups", snap); render(); }, fail);
+  db.collection("aduan").onSnapshot(snap => { S.aduan = snap.docs.map(d => ({ ...d.data(), id: d.id })); settle("aduan", snap); render(); }, fail);
+  db.collection("keretapi").onSnapshot(snap => { const m = {}; snap.docs.forEach(d => { m[d.id] = d.data().naik || {}; }); S.board = m; settle("keretapi", snap); render(); }, fail);
+  db.collection("settings").onSnapshot(snap => { const c = snap.docs.find(d => d.id === "contacts"); CONTACTS = (c && c.data().list) || []; render(); }, () => {});
+  db.collection("jemaah").onSnapshot(snap => { const m = {}; snap.docs.forEach(d => { m[d.id] = { ...d.data(), id: d.id }; }); S.jemaah = m; settle("jemaah", snap); render(); }, fail);
+  db.collection("rooms").onSnapshot(snap => { S.rooms = snap.docs.map(d => ({ ...d.data(), id: d.id })); settle("rooms", snap); render(); }, fail);
+  db.collection("progress").onSnapshot(snap => { const p = {}; snap.docs.forEach(d => { p[d.id] = { done: d.data().done || {}, sent: d.data().sent || {} }; }); S.progress = p; settle("progress", snap); render(); }, fail);
+}
+function startLocal() {
+  S.mode = "local";
+  let data = null; try { data = JSON.parse(localStorage.getItem(LS_KEY) || "null"); } catch (e) {}
+  if (data) { S.groups = data.groups || []; S.rooms = data.rooms || []; S.progress = data.progress || {}; S.aduan = data.aduan || []; S.jemaah = data.jemaah || {}; S.board = data.board || {}; }
+  render();
+}
+
+/* ---------- pilgrims (built from rooming lists) ---------- */
+const FLAGS = [
+  { k: "oku", l: "Special needs", s: "OKU" }, { k: "vvip", l: "VVIP", s: "VVIP" }, { k: "wheelchair", l: "Wheelchair", s: "Wheelchair" },
+  { k: "klinik", l: "Clinic visit", s: "Clinic" }, { k: "hospital", l: "Hospital appointment", s: "Hospital" }, { k: "cerewet", l: "Demanding", s: "Demanding" }, { k: "train", l: "Takes the train", s: "Train" },
+];
+function normName(n) { return String(n || "").toUpperCase().replace(/\s+/g, " ").trim(); }
+function hashStr(t) { let h = 5381; for (let i = 0; i < t.length; i++) h = ((h << 5) + h + t.charCodeAt(i)) >>> 0; return h.toString(36); }
+function personId(gid, name) { return "p-" + gid.replace(/^g-/, "") + "-" + hashStr(normName(name)); }
+let _pc = { rooms: null, map: null };
+function people() {
+  if (_pc.rooms === S.rooms) return _pc.map;
+  const map = new Map();
+  S.rooms.forEach(r => (r.penghuni || "").split(/;\s*/).filter(Boolean).forEach(n => {
+    const id = personId(r.groupId, n); let p = map.get(id);
+    if (!p) { p = { id, groupId: r.groupId, nama: n.trim(), rooms: [] }; map.set(id, p); }
+    p.rooms.push(r);
+  }));
+  _pc = { rooms: S.rooms, map }; return map;
+}
+function autoFlags(p) {
+  const n = normName(p.nama); const out = [];
+  if (/\b(DATUK|DATIN|DATO'?|TAN SRI|PUAN SRI|TUN)\b/.test(n)) out.push("vvip");
+  if (/\b(CWBWF|CNBNF|INFANT|CWB)\b/.test(n)) out.push("child");
+  if (/\b(STAFF|PETUGAS|GHANDLING)\b/.test(n) || p.rooms.some(r => r.jenis === "Staff")) out.push("staff");
+  return out;
+}
+function pflags(p) {
+  const doc = S.jemaah[p.id] || {}; const man = doc.flags || {};
+  const list = FLAGS.filter(f => man[f.k]).map(f => ({ k: f.k, s: f.s, auto: false }));
+  autoFlags(p).forEach(k => { if (k === "vvip" && (man.vvip || man.vvip === false)) return; list.push({ k, s: k === "vvip" ? "VVIP" : k === "child" ? "Child" : "Staff", auto: true }); });
+  return list;
+}
+const CAM = '<svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>';
+function flagChips(p) { const ph = (S.jemaah[p.id]?.gambar || []).length; return pflags(p).map(f => `<span class="fl ${f.k} ${f.auto ? "auto" : ""}" title="${f.auto ? "From rooming list" : ""}">${esc(f.s)}</span>`).join("") + (ph ? `<span class="fl cam" title="${ph} photo${ph > 1 ? "s" : ""}">${CAM}${ph}</span>` : ""); }
+function displayName(n) { return n.replace(/\s*-\s*(CWBWF|CNBNF|INFANT|STAFF ROOM|STAFF|PETUGAS|GHANDLING|DATUK|DATIN|DATO)\s*$/i, ""); }
+function nameBtn(p) { return `<button class="pname" data-act="person" data-pid="${p.id}"><span class="nm">${esc(displayName(p.nama))}</span>${flagChips(p)}</button>`; }
+function mealOf(r) {
+  const t = ((r.pelan || "") + " " + (r.conf || "")).toUpperCase(); const out = [];
+  if (r.jenis === "Staff") return out;
+  if (/\bBB\b/.test(r.pelan.toUpperCase())) out.push(["warn", "Breakfast only"]); else if (/\bFB\b|FULL ?BOARD/.test(t)) out.push(["ok", "Full board"]); else if (/\bHB\b/.test(t)) out.push(["", "Half board"]);
+  if (/NON VIEW|\bNV\b/.test(t)) out.push(["", "Non-view"]); else if (/HARAM VIEW/.test(t)) out.push(["mk", "Haram view"]); else if (/CITY/.test(t)) out.push(["", "City view"]);
+  if (/PREMIUM FLOOR/.test(t)) out.push(["move", "Premium floor"]);
+  return out;
+}
+function appts(date) {
+  return Object.values(S.jemaah).filter(j => j.flags && j.flags.hospital && j.appt && j.appt.tarikh === date).sort((a, b) => (a.appt.masa || "99").localeCompare(b.appt.masa || "99"));
+}
+
+/* ---------- UI helpers ---------- */
+let toastT;
+function toast(msg) { const t = document.getElementById("toast"); t.hidden = true; void t.offsetWidth; t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => { t.hidden = true; }, 2800); }
+const WHERE = { MK: ["mk", "Makkah"], MD: ["md", "Madinah"], TF: ["move", "Taif"], AIR: ["air", "Going home"], KL: ["", "Malaysia"], belum: ["", "Not departed"], selesai: ["ok", "Completed"] };
+function whereChip(w) { const [c, l] = WHERE[w] || ["", w]; return `<span class="chip ${c}">${l}</span>`; }
+function kindChip(k) { const m = { in: ["move", "Check-in"], out: ["move", "Check-out"], air: ["air", "Flight"], move: ["move", "Transfer"], train: ["md", "Train"] }[k]; return m ? `<span class="chip ${m[0]}">${m[1]}</span>` : ""; }
+function trTxt(it, g) { return it.tr && it.tr !== "—" ? it.tr + (it.tr === "Bus" && g && g.bas ? " " + g.bas : "") : ""; }
+function syncUI() {
+  const dot = document.getElementById("syncDot"), txt = document.getElementById("syncText");
+  dot.className = "dot"; const ro = S.readOnly ? " · view only" : "";
+  const sy = window.umrahSync ? window.umrahSync() : null;
+  if (sy && (sy.offline || sy.pending)) { dot.classList.add("local"); txt.textContent = sy.offline ? `Offline${sy.pending ? " · " + sy.pending + " change" + (sy.pending > 1 ? "s" : "") + " waiting" : " · showing saved data"}` : `Saving ${sy.pending} change${sy.pending > 1 ? "s" : ""}…`; return; }
+  if (S.mode === "live") { dot.classList.add("live"); txt.textContent = "Live, shared" + ro; }
+  else if (S.mode === "local") { dot.classList.add("local"); txt.textContent = "This device only"; }
+  else if (S.mode === "slow") txt.textContent = "Data delayed" + ro;
+  else if (S.mode === "error") txt.textContent = "Disconnected";
+  else txt.textContent = "Connecting…";
+}
+function tickClock() {
+  const p = mkParts(); const t = document.getElementById("mkTime"), d = document.getElementById("mkDate");
+  if (t) t.innerHTML = p.hour + '<span class="colon">:</span>' + p.minute;
+  if (d) { const s = p.year + "-" + p.month + "-" + p.day; d.textContent = DAYS[parseD(s).getUTCDay()] + ", " + (+p.day) + " " + MONTHS[+p.month - 1]; }
+}
+
+/* ---------- Today ---------- */
+const STATE_KEY = (g, n, i) => g + ":" + n + ":" + i;
+function tentativeText(g, n) {
+  const d = tplOf(g)[n]; const date = addDays(g.tarikh, n); const hotel = hotelFor(g, d.where);
+  const L = ["*SCHEDULE " + (g.kod || g.nama) + "*", dayLabel(d) + " · " + fmtD(date)];
+  if (hotel) L.push("Hotel: " + hotel);
+  L.push("");
+  d.items.forEach(it => { const tr = trTxt(it, g); L.push((it.t ? it.t + "  " : "• ") + it.a + (tr ? " (" + tr + ")" : "")); if (it.d) L.push("   _" + it.d + "_"); });
+  L.push("");
+  if (g.mutawwif) L.push("Mutawwif: " + g.mutawwif + (g.telMutawwif ? " " + g.telMutawwif : ""));
+  const where = d.where === "AIR" ? (g.pakej === "MH-MD" ? "MK" : "MD") : d.where;
+  const staff = PETUGAS_ROLE[where] ? CONTACTS.filter(c => PETUGAS_ROLE[where].test(c.r)) : [];
+  if (staff.length) L.push("Staff: " + staff.map(c => c.n + " " + c.t).join(", "));
+  return L.join("\n").trim();
+}
+function ring(done, total) { const pct = total ? Math.round(done / total * 100) : 0; return `<span class="ring ${done === total && total ? "full" : ""}" style="--p:${pct}" aria-label="${done} of ${total} done"><span>${done === total && total ? "✓" : done + "/" + total}</span></span>`; }
+function dayBlock(g, n, opts = {}) {
+  const d = tplOf(g)[n]; const date = addDays(g.tarikh, n); const sent = isSent(g.id, n);
+  const sentAt = prog(g.id).sent["d" + n];
+  const doneN = d.items.filter((_, i) => isDone(g.id, n, i)).length;
+  const hotel = hotelFor(g, d.where); const key = g.id + ":" + n;
+  const items = d.items.map((it, i) => { const dn = isDone(g.id, n, i); const tr = trTxt(it, g);
+    return `<div class="cl-item ${dn ? "done" : ""}"><button class="tick sm ${S.pop === STATE_KEY(g.id, n, i) ? "pop" : ""}" aria-pressed="${dn}" aria-label="Mark done: ${esc(it.a)}" data-act="tick" data-g="${g.id}" data-n="${n}" data-i="${i}" ${S.readOnly ? "disabled" : ""}>✓</button>
+      <div class="time ${it.t ? "" : "none"}">${it.t || "—"}</div>
+      <div style="min-width:0"><div class="ev-title">${esc(it.a)}</div>${kindChip(it.k) || tr ? `<div class="ev-meta" style="margin-top:3px">${kindChip(it.k)}${tr ? `<span>${esc(tr)}</span>` : ""}</div>` : ""}</div></div>`; }).join("");
+  return `<article class="dayblock ${opts.today ? "today" : ""} ${opts.past ? "past" : ""}">
+    <div class="dayhead"><div style="min-width:0">
+      <div class="row" style="gap:6px">${opts.showGroup ? `<span class="chip grp">${esc(g.kod || g.nama)}</span>` : ""}<h3>${esc(dayLabel(d))}</h3>${whereChip(d.where)}${opts.today ? '<span class="chip ok">Today</span>' : ""}</div>
+      <div class="sub">${fmtD(date)}${hotel ? " · " + esc(hotel) : ""}${opts.showGroup && g.pax ? " · " + esc(g.pax) + " pax" : ""}</div></div>
+      ${ring(doneN, d.items.length)}</div>
+    <div class="sentrow">
+      <button class="sentbtn ${S.pop === "sent:" + key ? "pop" : ""}" aria-pressed="${sent}" data-act="sentAll" data-g="${g.id}" data-n="${n}" ${S.readOnly ? "disabled" : ""}>${sent ? IC.check + "Sent & ticked · " + esc(fmtTs(sentAt)) : IC.send + "Schedule not sent yet"}</button>
+      <button class="btn small ghost" data-act="copyTent" data-g="${g.id}" data-n="${n}">Copy WhatsApp text</button>
+    </div>
+    ${S.copyOpen === key ? `<textarea class="copybox" id="copy-${g.id}-${n}" readonly aria-label="Schedule text">${esc(tentativeText(g, n))}</textarea>` : ""}
+    <div class="cl">${items}</div>
+  </article>`;
+}
+function emptyState(msg, extra = "") { return `<div class="timeline"><div class="empty">${IC.star}<div>${msg}</div>${extra}</div></div>`; }
+function parseEnDate(t) { const m = String(t || "").match(/(\d{1,2})\s+([A-Za-z]{3})\w*\s+(\d{4})/); if (!m) return ""; const mi = MONTHS.findIndex(x => x.toLowerCase() === m[2].toLowerCase()); return mi < 0 ? "" : m[3] + "-" + String(mi + 1).padStart(2, "0") + "-" + m[1].padStart(2, "0"); }
+function dayEvents(date) {
+  const out = [];
+  S.groups.filter(isActive).forEach(g => { const n = groupDay(g, date); if (n === null) return; const d = tplOf(g)[n]; d.items.forEach((it, i) => out.push({ g, n, i, it, where: d.where, lbl: dayLabel(d) })); });
+  return out.sort((a, b) => (a.it.t || "99").localeCompare(b.it.t || "99") || (a.g.kod || "").localeCompare(b.g.kod || ""));
+}
+function pendingItems(date) {
+  const L = []; const P = people(); const tmr = addDays(date, 1);
+  openAduan().sort((a, b) => (a.keutamaan === "segera" ? 0 : 1) - (b.keutamaan === "segera" ? 0 : 1) || (a.dilapor || "").localeCompare(b.dilapor || "")).forEach(a => {
+    const g = gById(a.groupId);
+    L.push({ sev: a.keutamaan === "segera" ? "bad" : "warn", t: `${a.keutamaan === "segera" ? "Urgent: " : ""}${a.kategori}${a.bilik ? " · room " + a.bilik : ""}`, s: `${g?.kod || ""} · ${a.keterangan}`.slice(0, 120) + ` · ${AST[a.status || "baru"]} ${ageTxt(a.dilapor)}`, act: "goAduan", go: "Complaints" });
+  });
+  [[date, "today"], [tmr, "tomorrow"]].forEach(([d, word]) => S.groups.filter(isActive).forEach(g => { const n = groupDay(g, d); if (n !== null && !isSent(g.id, n)) L.push({ sev: word === "today" ? "bad" : "warn", t: `Schedule for ${word} not sent · ${g.kod || g.nama}`, s: `${dayLabel(tplOf(g)[n])} · ${fmtD(d)}`, act: "goto", d, go: "Open" }); }));
+  [[date, "Today"], [tmr, "Tomorrow"]].forEach(([d, word]) => appts(d).forEach(j => L.push({ sev: "md", t: `${word} ${j.appt.masa || ""} hospital · ${displayName(j.nama)}`, s: `${gById(j.groupId)?.kod || ""} · ${j.appt.tempat || ""}`, act: "person", pid: j.id, go: "View" })));
+  Object.values(S.jemaah).filter(j => j.flags && j.flags.klinik && isActive(gById(j.groupId) || {})).forEach(j => L.push({ sev: "md", t: `Clinic visit · ${displayName(j.nama)}`, s: `${gById(j.groupId)?.kod || ""}${j.nota ? " · " + j.nota : ""}`, act: "person", pid: j.id, go: "View" }));
+  const noNo = {}; S.rooms.forEach(r => { const a = parseEnDate(r.masuk), b = parseEnDate(r.keluar); if (a && b && a <= date && date < b && !r.bilik) { const k = r.groupId + "|" + r.hotel; noNo[k] = (noNo[k] || 0) + 1; } });
+  Object.entries(noNo).forEach(([k, n]) => { const [gid, hotel] = k.split("|"); const g = gById(gid); if (g && isActive(g)) L.push({ sev: "warn", t: `${n} room${n > 1 ? "s" : ""} without room no. · ${g.kod}`, s: hotel, act: "roomsNoNo", gid, go: "Rooms" }); });
+  return L;
+}
+function progList(date) {
+  const ev = dayEvents(date);
+  if (!ev.length) return `<div class="timeline"><div class="empty" style="padding:20px">${IC.star}<div>No group programme on ${fmtShort(date)}.</div></div></div>`;
+  return `<div class="timeline">${ev.map(e => { const done = isDone(e.g.id, e.n, e.i); const tr = trTxt(e.it, e.g); const hotel = hotelFor(e.g, e.where);
+    return `<div class="pg ${done ? "done" : ""}"><div class="time ${e.it.t ? "" : "none"}">${e.it.t || "All day"}</div>
+      <div style="min-width:0"><div class="ev-title">${esc(e.it.a)}</div><div class="ev-meta"><span class="chip grp">${esc(e.g.kod || e.g.nama)}</span>${whereChip(e.where)}${kindChip(e.it.k)}${tr ? `<span>${esc(tr)}</span>` : ""}${e.g.pax ? `<span>· ${esc(e.g.pax)} pax</span>` : ""}${hotel && e.it.k === "in" ? `<span>· ${esc(hotel)}</span>` : ""}</div></div>
+      <span class="st" aria-label="${done ? "Done" : "Not done"}">✓</span></div>`; }).join("")}</div>`;
+}
+function viewHome() {
+  const real = todayStr(); const date = S.homeDate || real; const tmr = addDays(date, 1); const p = mkParts();
+  const isToday = date === real; const isTmr = date === addDays(real, 1); const isYest = date === addDays(real, -1);
+  const name1 = isToday ? "Today" : isTmr ? "Tomorrow" : isYest ? "Yesterday" : DAYS_L[parseD(date).getUTCDay()];
+  const name2 = isToday ? "Tomorrow" : tmr === real ? "Today" : DAYS_L[parseD(tmr).getUTCDay()];
+  const pend = pendingItems(real); const urgent = pend.filter(x => x.sev === "bad").length;
+  const openP = !!S.pendOpen; const shown = openP ? pend : pend.slice(0, 3);
+  const evT = dayEvents(date), evM = dayEvents(tmr); const doneT = evT.filter(e => isDone(e.g.id, e.n, e.i)).length;
+  const groupsT = new Set(evT.map(e => e.g.id)).size, groupsM = new Set(evM.map(e => e.g.id)).size;
+  const hr = +p.hour; const greet = hr < 12 ? "Good morning" : hr < 18 ? "Good afternoon" : "Good evening";
+  return `<section class="hello"><div><span class="eyebrow">${greet} · Makkah ${p.hour}:${p.minute}</span><h2>${fmtD(date)}</h2></div>
+      <div class="row"><button class="btn small" data-act="report">Daily report</button><button class="btn small primary" data-act="goto" data-d="${date}">Open checklist</button>${window.umrahSignOut ? `<button class="btn small ghost" data-act="signOut">Sign out</button>` : ""}</div></section>
+    <section class="datebar">
+      <button class="btn small" data-act="hDay" data-d="-1" aria-label="Previous day">‹</button>
+      <input type="date" id="homeDate" value="${date}" aria-label="Pick a date">
+      <button class="btn small" data-act="hDay" data-d="1" aria-label="Next day">›</button>
+      ${isToday ? "" : `<button class="btn small primary" data-act="hToday">Back to today</button>`}
+    </section>
+    <section class="pend">
+      <button class="pendhead" data-act="pendToggle" aria-expanded="${openP}">
+        <span class="big"><span class="num ${pend.length ? (urgent ? "" : "warn") : "ok"}">${pend.length || "✓"}</span>
+          <span><span style="display:block;font-weight:700">${pend.length ? "Pending issues" : "No pending issues"}</span><span style="font-size:.78rem;color:var(--muted)">${pend.length ? `${urgent ? urgent + " need action now · " : ""}tap an item to open it` : "Complaints, schedules and rooms are all in order"}</span></span></span>
+        ${pend.length > 3 ? `<span class="rchev"><svg class="i" viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M6 9l6 6 6-6"/></svg></span>` : ""}
+      </button>
+      ${pend.length ? `<div class="plist">${shown.map(x => `<button class="pitem" data-act="${x.act}" ${x.d ? `data-d="${x.d}"` : ""} ${x.pid ? `data-pid="${x.pid}"` : ""} ${x.gid ? `data-gid="${x.gid}"` : ""}><span class="dot2 ${x.sev}"></span><span style="min-width:0"><div class="tt">${esc(x.t)}</div><div class="ss">${esc(x.s)}</div></span><span class="go">${x.go} ›</span></button>`).join("")}${pend.length > 3 ? `<button class="pitem" data-act="pendToggle" style="grid-template-columns:1fr"><span class="go" style="text-align:center">${openP ? "Show fewer" : "Show all " + pend.length + " issues"}</span></button>` : ""}</div>` : ""}
+    </section>
+    <section class="prog"><div class="dayhd"><h2>${name1}<span>${fmtShort(date)}</span></h2><span class="eyebrow">${groupsT} group${groupsT === 1 ? "" : "s"} · ${doneT}/${evT.length} done</span></div>${progList(date)}</section>
+    <section class="prog"><div class="dayhd"><h2>${name2}<span>${fmtShort(tmr)}</span></h2><span class="eyebrow">${groupsM} group${groupsM === 1 ? "" : "s"} · ${evM.length} activities</span></div>${progList(tmr)}</section>`;
+}
+function viewHari() {
+  const date = S.date;
+  let paxMk = 0, paxMd = 0, nMk = 0, nMd = 0;
+  const active = S.groups.filter(isActive); const today = [];
+  active.forEach(g => { const n = groupDay(g, date); const w = groupWhere(g, date);
+    if (w === "MK") { nMk++; paxMk += +g.pax || 0; } if (w === "MD") { nMd++; paxMd += +g.pax || 0; }
+    if (n !== null) today.push({ g, n }); });
+  today.sort((a, b) => (a.g.kod || "").localeCompare(b.g.kod || ""));
+  const events = [];
+  today.forEach(({ g, n }) => { const dd = tplOf(g)[n]; dd.items.forEach((it, i) => events.push({ g, n, i, it, where: dd.where, lbl: dayLabel(dd) })); });
+  events.sort((a, b) => (a.it.t || "99").localeCompare(b.it.t || "99") || (a.g.kod || "").localeCompare(b.g.kod || ""));
+  const doneCount = events.filter(e => isDone(e.g.id, e.n, e.i)).length;
+  const unsent = today.filter(x => !isSent(x.g.id, x.n));
+  const tmr = addDays(date, 1);
+  const unsentTmr = active.filter(g => { const n = groupDay(g, tmr); return n !== null && !isSent(g.id, n); });
+  const next = !today.length ? active.filter(g => g.tarikh && g.tarikh > date).sort((a, b) => a.tarikh.localeCompare(b.tarikh))[0] : null;
+  const isToday = date === todayStr();
+
+  const rows = events.map(e => { const done = isDone(e.g.id, e.n, e.i); const hotel = hotelFor(e.g, e.where); const tr = trTxt(e.it, e.g);
+    return `<div class="ev ${done ? "done" : ""}">
+      <div class="time ${e.it.t ? "" : "none"}">${e.it.t || "All day"}</div>
+      <div style="min-width:0"><div class="ev-title">${esc(e.it.a)}</div>
+        <div class="ev-meta"><span class="chip grp">${esc(e.g.kod || e.g.nama)}</span>${whereChip(e.where)}${kindChip(e.it.k)}<span>${esc(e.lbl)}</span>${tr ? `<span>· ${esc(tr)}</span>` : ""}${hotel ? `<span>· ${esc(hotel)}</span>` : ""}${e.g.pax ? `<span>· ${esc(e.g.pax)} pax</span>` : ""}</div>
+        ${e.it.d ? `<div class="ev-detail">${esc(e.it.d)}</div>` : ""}</div>
+      <button class="tick ${S.pop === STATE_KEY(e.g.id, e.n, e.i) ? "pop" : ""}" aria-pressed="${done}" aria-label="Mark done: ${esc(e.it.a)} (${esc(e.g.kod)})" data-act="tick" data-g="${e.g.id}" data-n="${e.n}" data-i="${e.i}" ${S.readOnly ? "disabled" : ""}>✓</button>
+    </div>`; }).join("");
+  const body = !today.length ? emptyState(S.groups.length ? "No active group is on the itinerary for this date." : "No groups yet. Add your first group in the Groups tab.",
+      next ? `<button class="btn primary" data-act="goto" data-d="${next.tarikh}">Jump to ${esc(next.kod || next.nama)} · ${fmtShort(next.tarikh)}</button>` : "")
+    : S.hariMode === "masa" ? `<div class="timeline">${rows}</div>` : `<div class="cards days">${today.map(({ g, n }) => dayBlock(g, n, { showGroup: true })).join("")}</div>`;
+  const evPct = events.length ? Math.round(doneCount / events.length * 100) : 0;
+  const sentPct = today.length ? Math.round((today.length - unsent.length) / today.length * 100) : 0;
+
+  return `
+  <section class="row spread" style="align-items:flex-end">
+    <div class="datehead"><span class="eyebrow">${isToday ? "Today in Makkah" : "Viewing"}</span><span class="label">${fmtD(date)}</span></div>
+    <div class="datebar">
+      <button class="btn small" data-act="day" data-d="-1" aria-label="Previous day">‹</button>
+      <input type="date" id="datePick" value="${date}" aria-label="Pick a date">
+      <button class="btn small" data-act="day" data-d="1" aria-label="Next day">›</button>
+      ${isToday ? "" : `<button class="btn small primary" data-act="today">Today</button>`}
+      <button class="btn small" data-act="report">Daily report</button>
+    </div>
+  </section>
+  <section class="stats" aria-label="Summary">
+    <div class="stat mk"><div class="ico">${IC.kaaba}</div><div><b>${nMk}</b><span>groups in Makkah</span><em>${paxMk} pilgrims</em></div></div>
+    <div class="stat md"><div class="ico">${IC.dome}</div><div><b>${nMd}</b><span>groups in Madinah</span><em>${paxMd} pilgrims</em></div></div>
+    <div class="stat todo ${today.length && !unsent.length ? "zero" : ""}"><div class="ico">${IC.send}</div><div><b>${unsent.length}</b><span>schedules not sent</span><em>${today.length - unsent.length} of ${today.length} sent</em></div><div class="bar"><i style="width:${sentPct}%"></i></div></div>
+    <div class="stat air"><div class="ico">${IC.list}</div><div><b>${events.length - doneCount}</b><span>activities left</span><em>${doneCount} of ${events.length} done</em></div><div class="bar"><i style="width:${evPct}%"></i></div></div>
+  </section>
+  ${unsentTmr.length ? `<div class="alert-line amber"><span>Tomorrow's schedule (${fmtShort(tmr)}) not sent: ${unsentTmr.map(g => esc(g.kod || g.nama)).join(", ")}</span><button class="btn small" data-act="goto" data-d="${tmr}">Open tomorrow</button></div>` : ""}
+  ${aduanAlert()}
+  ${attention(date, today)}
+  <section style="display:flex;flex-direction:column;gap:12px">
+    <div class="row spread"><h2>Checklist</h2>
+      <div class="seg" role="group" aria-label="View"><button data-act="hariMode" data-m="group" aria-pressed="${S.hariMode !== "masa"}">By group</button><button data-act="hariMode" data-m="masa" aria-pressed="${S.hariMode === "masa"}">By time</button></div></div>
+    ${body}
+  </section>`;
+}
+function attention(date, today) {
+  const ap = appts(date);
+  const P = people(); const active = new Set(today.map(x => x.g.id));
+  const flagged = [...P.values()].filter(p => active.has(p.groupId));
+  const clinic = flagged.filter(p => (S.jemaah[p.id] || {}).flags?.klinik);
+  const wc = {}; flagged.forEach(p => { if ((S.jemaah[p.id] || {}).flags?.wheelchair) wc[p.groupId] = (wc[p.groupId] || 0) + 1; });
+  if (!ap.length && !clinic.length && !Object.keys(wc).length) return "";
+  const row = (time, p, extra) => `<div><div class="time ${time ? "" : "none"}">${esc(time || "Today")}</div><div style="min-width:0">${nameBtn(p)}<div class="ev-meta"><span class="chip grp">${esc(gById(p.groupId)?.kod || "")}</span>${extra}</div></div></div>`;
+  const stayTxt = p => { const r = curRoom(p, date); return r ? `<span>${esc(r.hotel)} · ${esc(roomLabel(r))}</span>` : ""; };
+  return `<section style="display:flex;flex-direction:column;gap:12px"><div class="row spread"><h2>Needs attention</h2>
+    ${Object.keys(wc).length ? `<div class="wcrow">${Object.entries(wc).map(([g, n]) => `<span class="chip">${esc(gById(g)?.kod || "")} · ${n} wheelchair</span>`).join("")}</div>` : ""}</div>
+    ${ap.length || clinic.length ? `<div class="attn">
+      ${ap.map(j => { const p = P.get(j.id) || { id: j.id, nama: j.nama, groupId: j.groupId, rooms: [] }; return row(j.appt.masa, p, `<span class="chip bad">Hospital</span><span>${esc(j.appt.tempat || "")}</span>${stayTxt(p)}`); }).join("")}
+      ${clinic.map(p => row("", p, `<span class="chip warn">Clinic</span><span>${esc((S.jemaah[p.id] || {}).nota || "")}</span>${stayTxt(p)}`)).join("")}
+    </div>` : ""}</section>`;
+}
+function curRoom(p, date) {
+  const g = gById(p.groupId); const city = g ? { MK: "Makkah", MD: "Madinah", TF: "Taif" }[groupWhere(g, date)] : null;
+  return p.rooms.find(r => r.bandar === city) || null;
+}
+function reportText(date) {
+  const L = ["*UMRAH OPS · " + fmtD(date) + "*", "Makkah time " + mkParts().hour + ":" + mkParts().minute, ""];
+  const active = S.groups.filter(isActive).map(g => ({ g, n: groupDay(g, date) })).filter(x => x.n !== null).sort((a, b) => (a.g.kod || "").localeCompare(b.g.kod || ""));
+  if (!active.length) L.push("No active groups today.");
+  active.forEach(({ g, n }) => {
+    const d = tplOf(g)[n]; const done = d.items.filter((_, i) => isDone(g.id, n, i)).length;
+    const city = { MK: "Makkah", MD: "Madinah", TF: "Taif", AIR: "Going home", KL: "Malaysia" }[d.where];
+    const rooms = S.rooms.filter(r => r.groupId === g.id && r.bandar === city);
+    const op = openAduan().filter(a => a.groupId === g.id).length;
+    L.push(`*${g.kod}* · ${dayLabel(d)} · ${city}${g.pax ? " · " + g.pax + " pax" : ""}`);
+    L.push(`  Schedule ${isSent(g.id, n) ? "sent ✓" : "NOT sent"} · Activities ${done}/${d.items.length}`);
+    if (rooms.length) L.push(`  Rooms ${rooms.filter(r => r.status === "masuk").length}/${rooms.length} checked in · ${rooms.filter(r => !r.bilik).length} without room no.`);
+    if (op) L.push(`  Open complaints: ${op}`);
+  });
+  const open = openAduan(); const solvedToday = S.aduan.filter(a => a.status === "selesai" && a.selesaiPada && (() => { const q = mkParts(new Date(a.selesaiPada)); return q.year + "-" + q.month + "-" + q.day === date; })());
+  L.push("", `*Complaints* · ${open.filter(a => a.status === "baru").length} new · ${open.filter(a => a.status === "tindakan").length} in progress · ${solvedToday.length} resolved today`);
+  open.filter(a => a.keutamaan === "segera").forEach(a => L.push(`  ⚠ ${gById(a.groupId)?.kod || ""} ${a.bilik ? "room " + a.bilik + " · " : ""}${a.kategori}: ${a.keterangan}`.slice(0, 160)));
+  const ap = appts(date); if (ap.length) { L.push("", "*Hospital appointments*"); ap.forEach(j => L.push(`  ${j.appt.masa || "--:--"} ${displayName(j.nama)} (${gById(j.groupId)?.kod || ""}) · ${j.appt.tempat || ""}`)); }
+  const tmr = addDays(date, 1); const uns = S.groups.filter(isActive).filter(g => { const k = groupDay(g, tmr); return k !== null && !isSent(g.id, k); });
+  if (uns.length) L.push("", "Tomorrow's schedule not sent: " + uns.map(g => g.kod).join(", "));
+  return L.join("\n");
+}
+
+function viewChecklist() {
+  const g = gById(S.clGroup);
+  if (!g || !g.tarikh) return `<div class="notice">Group not found. <button class="btn small" data-act="backGroups">Back to groups</button></div>`;
+  const T = tplOf(g); const today = todayStr();
+  const sentN = T.filter((_, n) => isSent(g.id, n)).length;
+  return `<section class="row spread"><button class="btn small" data-act="backGroups">‹ All groups</button><span class="chip ${sentN === T.length ? "ok" : "warn"}">${sentN}/${T.length} schedules sent</span></section>
+  <section class="row spread" style="align-items:flex-end"><div><span class="chip grp">${esc(g.kod || "—")}</span><h2 style="margin-top:8px">${esc(g.nama)}</h2><div style="font-size:.8rem;color:var(--muted);margin-top:2px">${esc(pkgName(g))} · ${fmtShort(g.tarikh)} – ${fmtShort(addDays(g.tarikh, T.length - 1))}</div></div>
+    <div style="min-width:160px;flex:0 1 220px"><div class="row spread" style="font-size:.75rem;color:var(--muted)"><span>Activities done</span><span class="mono">${groupPct(g)}%</span></div><div class="progress"><i style="width:${groupPct(g)}%"></i></div></div></section>
+  <div class="cards days">${T.map((d, n) => { const dt = addDays(g.tarikh, n); return dayBlock(g, n, { today: dt === today, past: dt < today }); }).join("")}</div>`;
+}
+
+/* ---------- Groups ---------- */
+function groupForm(g) {
+  const v = g || { pakej: "MH-MK", kod: "", nama: "", tarikh: "", hotelTaif: "", hotelMakkah: "", hotelMadinah: "", ketua: "", telKetua: "", mutawwif: "", telMutawwif: "", pax: "", bas: "", catatan: "" };
+  const f = (id, label, val, type = "text", ph = "") => `<label class="f" for="gf-${id}">${label}<input id="gf-${id}" name="${id}" type="${type}" value="${esc(val)}" placeholder="${esc(ph)}"></label>`;
+  const pk = v.pakej || "MH-MK";
+  return `<form class="panel" id="groupForm" data-id="${g ? g.id : ""}">
+    <div class="row spread"><h2>${g ? "Edit " + esc(g.kod || g.nama) : "Add a group"}</h2><button type="button" class="btn small ghost" data-act="cancelEdit">Close</button></div>
+    <div class="grid2">
+      ${f("kod", "Group code", v.kod, "text", "e.g. MH30N-A")}
+      ${f("nama", "Name / package", v.nama, "text", "e.g. MH 30 NOV 2026")}
+      <label class="f" for="gf-pakej">Itinerary<select id="gf-pakej" name="pakej">${Object.entries(TEMPLATES).map(([k, t]) => `<option value="${k}" ${k === pk ? "selected" : ""}>${esc(t.name)}</option>`).join("")}</select></label>
+      ${f("tarikh", "Start date (see note below)", v.tarikh, "date")}
+      ${f("pax", "Number of pilgrims", v.pax, "number")}
+      ${f("hotelTaif", "Taif hotel (Taif package only)", v.hotelTaif, "text", "Armada Residence Hotel Apartments")}
+      ${f("hotelMakkah", "Makkah hotel", v.hotelMakkah, "text", "Safwah Royale Orchid / Olayan Ajyad")}
+      ${f("hotelMadinah", "Madinah hotel", v.hotelMadinah, "text", "Dallah Taibah / Dar Al Naeem")}
+      ${f("ketua", "Group leader", v.ketua)}
+      ${f("telKetua", "Leader's phone", v.telKetua, "tel")}
+      ${f("mutawwif", "Mutawwif / guide", v.mutawwif)}
+      ${f("telMutawwif", "Mutawwif's phone", v.telMutawwif, "tel")}
+      ${f("bas", "Bus no. / driver", v.bas)}
+      <label class="f" for="gf-transfer">Makkah ↔ Madinah transfer<select id="gf-transfer" name="transfer"><option value="bus" ${v.transfer !== "train" ? "selected" : ""}>Bus (447 km)</option><option value="train" ${v.transfer === "train" ? "selected" : ""}>Haramain train</option></select></label>
+      ${f("trainDep", "Train departs (if train)", v.trainDep || "", "time")}
+      ${f("trainArr", "Train arrives (if train)", v.trainArr || "", "time")}
+      ${f("trainNo", "Train no. (if train)", v.trainNo || "", "text", "e.g. HHR 1022")}
+      ${f("trainNota", "Train notes", v.trainNota || "", "text", "Coach, seats, booking ref")}
+      ${f("catatan", "Notes", v.catatan, "text", "Wheelchair users, Taif sign-ups, etc.")}
+    </div>
+    <div class="notice" style="font-size:.8rem">Start date: Makkah-first and Madinah-first packages use the KLIA departure date (Day 1). The Taif-first package uses the KLIA assembly date, the night before Day 1 (e.g. SV 04 DEC → 3 Dec).</div>
+    <div class="row"><button class="btn primary" type="submit" ${S.readOnly ? "disabled" : ""}>${g ? "Save" : "Add group"}</button>
+    ${g ? `<button type="button" class="btn danger ghost" data-act="delGroup" data-id="${g.id}" ${S.readOnly ? "disabled" : ""}>Delete group</button>` : ""}</div>
+  </form>`;
+}
+function viewGroup() {
+  const date = todayStr();
+  const ended = g => !g.arkib && groupWhere(g, date) === "selesai";
+  const inArchive = g => g.arkib || ended(g);
+  const inMk = g => !g.arkib && groupWhere(g, date) === "MK";
+  const fc = { aktif: S.groups.filter(g => !inArchive(g)).length, makkah: S.groups.filter(inMk).length, arkib: S.groups.filter(inArchive).length };
+  const shown = S.groups.filter(g => S.groupFilter === "arkib" ? inArchive(g) : S.groupFilter === "makkah" ? inMk(g) : !inArchive(g))
+    .sort((a, b) => (a.tarikh || "").localeCompare(b.tarikh || "") || (a.kod || "").localeCompare(b.kod || ""));
+  const cards = shown.map(g => {
+    const n = groupDay(g, date); const w = groupWhere(g, date); const pct = groupPct(g);
+    const rooms = S.rooms.filter(r => r.groupId === g.id); const inR = rooms.filter(r => r.status === "masuk").length;
+    const open = openAduan().filter(a => a.groupId === g.id);
+    const T = tplOf(g); const sentN = T.filter((_, k) => isSent(g.id, k)).length;
+    const isOpen = !!S.openG[g.id];
+    const dates = g.tarikh ? fmtShort(g.tarikh) + " – " + fmtShort(addDays(g.tarikh, T.length - 1)) : "No date";
+    return `<article class="gcard" data-w="${w}">
+      <button class="ghead" data-act="gToggle" data-id="${g.id}" aria-expanded="${isOpen}" aria-controls="gb-${g.id}">
+        <span class="l1"><span class="chip grp">${esc(g.kod || "—")}</span><h3>${esc(g.nama)}</h3>${g.arkib ? '<span class="chip">Archived</span>' : ""}</span>
+        <span class="r">${whereChip(w)}<span class="chev"><svg class="i" viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M6 9l6 6 6-6"/></svg></span></span>
+        <span class="l2"><span class="mono">${dates}</span>${n !== null ? `<span>${esc(dayLabel(T[n]))} of ${T.length}</span>` : ""}<span>${esc(g.pax || "—")} pax</span>
+          ${open.length ? `<span class="chip ${open.some(a => a.keutamaan === "segera") ? "bad" : "warn"}">${open.length} complaint${open.length > 1 ? "s" : ""}</span>` : ""}
+          ${n !== null && !isSent(g.id, n) ? '<span class="chip warn">Schedule not sent</span>' : ""}
+          <span title="Activities done"><span class="mini"><i style="width:${pct}%"></i></span> ${pct}%</span></span>
+      </button>
+      ${isOpen ? `<div class="gbody" id="gb-${g.id}">
+      <dl class="kv">
+        <dt>Itinerary</dt><dd>${esc(pkgName(g))}</dd>
+        <dt>Transfer</dt><dd>${g.transfer === "train" ? `<span class="chip md">Haramain train</span> ${g.trainDep ? "dep " + esc(g.trainDep) : "time not set"}${g.trainArr ? " → " + esc(g.trainArr) : ""}${g.trainNo ? " · " + esc(g.trainNo) : ""}` : "Bus (447 km)"}</dd>
+        <dt>Dates</dt><dd class="mono">${g.tarikh ? fmtShort(g.tarikh) + " – " + fmtShort(addDays(g.tarikh, T.length - 1)) : "—"}</dd>
+        <dt>Pilgrims</dt><dd>${esc(g.pax || "—")} pax · ${rooms.length} rooms (${inR} checked in)</dd>
+        <dt>Complaints</dt><dd>${open.length ? `<span class="chip ${open.some(a => a.keutamaan === "segera") ? "bad" : "warn"}">${open.length} open</span>` : '<span class="chip ok">None open</span>'}</dd>
+        ${g.hotelTaif ? `<dt>Taif</dt><dd>${esc(g.hotelTaif)}</dd>` : ""}
+        <dt>Makkah</dt><dd>${esc(g.hotelMakkah || "—")}</dd>
+        <dt>Madinah</dt><dd>${esc(g.hotelMadinah || "—")}</dd>
+        <dt>Leader</dt><dd>${esc(g.ketua || "—")}${g.telKetua ? ` · <span class="mono">${esc(g.telKetua)}</span>` : ""}</dd>
+        <dt>Mutawwif</dt><dd>${esc(g.mutawwif || "—")}${g.telMutawwif ? ` · <span class="mono">${esc(g.telMutawwif)}</span>` : ""}</dd>
+        ${g.bas ? `<dt>Bus</dt><dd>${esc(g.bas)}</dd>` : ""}
+        ${g.catatan ? `<dt>Notes</dt><dd>${esc(g.catatan)}</dd>` : ""}
+      </dl>
+      <div><div class="row spread" style="font-size:.74rem;color:var(--muted)"><span>Activities done · ${sentN}/${T.length} schedules sent</span><span class="mono">${pct}%</span></div><div class="progress"><i style="width:${pct}%"></i></div></div>
+      <div class="row"><button class="btn small primary" data-act="checklist" data-id="${g.id}" ${g.tarikh ? "" : "disabled"}>Daily checklist</button>
+        <button class="btn small" data-act="edit" data-id="${g.id}">Edit</button>
+        <button class="btn small ghost" data-act="roomsOf" data-id="${g.id}">Rooms</button>
+        <button class="btn small ghost" data-act="aduanOf" data-id="${g.id}">Complaints</button>
+        <button class="btn small ghost" data-act="arkib" data-id="${g.id}" ${S.readOnly ? "disabled" : ""}>${g.arkib ? "Restore" : "Archive"}</button></div>
+      </div>` : ""}
+    </article>`;
+  }).join("");
+  const showForm = S.editing || S.showGroupForm;
+  return `${showForm ? groupForm(S.editing ? gById(S.editing) : null) : ""}
+  <section class="row spread">
+    <div class="seg" role="group" aria-label="Filter groups">
+      <button data-act="gF" data-f="aktif" aria-pressed="${S.groupFilter === "aktif"}">Active · ${fc.aktif}</button>
+      <button data-act="gF" data-f="makkah" aria-pressed="${S.groupFilter === "makkah"}">In Makkah · ${fc.makkah}</button>
+      <button data-act="gF" data-f="arkib" aria-pressed="${S.groupFilter === "arkib"}">Archive · ${fc.arkib}</button>
+    </div>
+    ${showForm ? "" : `<button class="btn primary" data-act="newGroup" ${S.readOnly ? "disabled" : ""}>+ Add group</button>`}
+  </section>
+  ${S.groupFilter === "arkib" ? `<div class="notice">Groups that have flown home move here automatically. Groups you archive by hand (e.g. once they leave Makkah) are hidden from Today. Their rooms, complaints and checklists are kept.</div>` : ""}
+  ${cards ? `${shown.length > 1 ? `<div class="gtools"><button class="btn small ghost" data-act="gAll" data-v="${shown.every(g => S.openG[g.id]) ? "0" : "1"}">${shown.every(g => S.openG[g.id]) ? "Collapse all" : "Expand all"}</button></div>` : ""}<div class="glist">${cards}</div>` : emptyState(S.groupFilter === "arkib" ? "Nothing archived yet." : S.groupFilter === "makkah" ? "No group is in Makkah today." : "No active groups. Tap + Add group to start.")}`;
+}
+
+/* ---------- Rooms ---------- */
+const STATUS = ["kosong", "masuk", "keluar"];
+const STATUS_LABEL = { kosong: "Not in yet", masuk: "Checked in", keluar: "Checked out" };
+function roomLabel(r) { return String(r.bilik || r.slot || "").trim(); }
+function roomMatch(a, r) { const b = String(a.bilik || "").trim(); return a.groupId === r.groupId && b && (b === String(r.bilik || "").trim() || b === String(r.slot || "").trim()); }
+const CITY_OF = { Makkah: "MK", Madinah: "MD", Taif: "TF" };
+function viewBilik() {
+  const F = S.roomFilter;
+  const hotels = [...new Set(S.rooms.map(r => r.hotel).filter(Boolean))].sort();
+  const cities = ["Taif", "Makkah", "Madinah"].filter(c => S.rooms.some(r => r.bandar === c && (!F.g || r.groupId === F.g)));
+  let base = S.rooms.filter(r => (!F.g || r.groupId === F.g) && (!F.h || r.hotel === F.h) && (!F.c || r.bandar === F.c));
+  if (F.q) { const q = F.q.toLowerCase(); base = base.filter(r => [r.penghuni, r.bilik, r.slot, r.ref, r.conf].some(x => String(x || "").toLowerCase().includes(q))); }
+  const roomKinds = r => { const set = new Set(); if (gById(r.groupId)?.transfer === "train") set.add("train"); (r.penghuni || "").split(/;\s*/).filter(Boolean).forEach(n => { const pp = people().get(personId(r.groupId, n)); if (pp) pflags(pp).forEach(f => set.add(f.k)); }); return set; };
+  const kindsOf = new Map(base.map(r => [r.id, roomKinds(r)]));
+  const QF = {
+    m: [["Full board", "Full board", "ok"], ["Breakfast only", "Breakfast only", "warn"]],
+    f: [["vvip", "VVIP", "gold"], ["wheelchair", "Wheelchair", "air"], ["oku", "Special needs", "md"], ["klinik", "Clinic", "warn"], ["hospital", "Hospital", "bad"], ["cerewet", "Demanding", "bad"], ["train", "Train", "md"], ["child", "Child", "ok"]],
+    s: [["kosong", "Not in yet", ""], ["masuk", "Checked in", "ok"], ["keluar", "Checked out", "md"]],
+    n: [["1", "No room no.", "warn"]],
+  };
+  const test = { m: (r, v) => mealOf(r).some(([, l]) => l === v), f: (r, v) => kindsOf.get(r.id)?.has(v), s: (r, v) => (r.status || "kosong") === v, n: r => !r.bilik };
+  const passes = (r, skip) => Object.keys(QF).every(k => k === skip || !F[k] || test[k](r, F[k]));
+  let list = base.filter(r => passes(r));
+  const anyQF = Object.keys(QF).some(k => F[k]);
+  const qchips = Object.entries(QF).map(([k, opts]) => opts.map(([v, l, c]) => { const n = base.filter(r => passes(r, k) && test[k](r, v)).length; const on = F[k] === v;
+    const always = k === "f" && v !== "child";
+    return n || on || always ? `<button class="qf ${c} ${on ? "on" : ""} ${n ? "" : "zero"}" data-act="qf" data-k="${k}" data-v="${v}" aria-pressed="${on}"><b>${n}</b> ${l}</button>` : ""; }).join("")).join("");
+  const cityRank = { Taif: 0, Makkah: 1, Madinah: 2 };
+  list.sort((a, b) => (cityRank[a.bandar] ?? 3) - (cityRank[b.bandar] ?? 3) || (a.hotel || "").localeCompare(b.hotel || "") || (gById(a.groupId)?.kod || "").localeCompare(gById(b.groupId)?.kod || "") || String(a.slot || a.bilik || "").localeCompare(String(b.slot || b.bilik || ""), undefined, { numeric: true }));
+  const unassigned = list.filter(r => !r.bilik).length;
+  const nPeople = list.reduce((s, r) => s + (r.penghuni ? r.penghuni.split(/[,;]/).filter(x => x.trim()).length : 0), 0);
+  const cnt = s => list.filter(r => (r.status || "kosong") === s).length;
+  const gOpts = sel => S.groups.map(g => `<option value="${g.id}" ${sel === g.id ? "selected" : ""}>${esc(g.kod || g.nama)}</option>`).join("");
+  const chev = '<svg class="i" viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M6 9l6 6 6-6"/></svg>';
+  const rows = list.map(r => { const g = gById(r.groupId); const st = r.status || "kosong"; const isOpen = !!S.openR[r.id];
+    const nA = openAduan().filter(a => roomMatch(a, r)).length;
+    const names = (r.penghuni || "").split(/;\s*/).filter(Boolean);
+    const ppl = names.map(n => people().get(personId(r.groupId, n)) || { id: personId(r.groupId, n), nama: n, rooms: [r] });
+    const meals = mealOf(r); const board = meals.find(([, l]) => /board|Breakfast/.test(l));
+    return `<article class="rcard s-${st}">
+      <div class="rhead">
+        <button class="rtoggle" data-act="rToggle" data-id="${r.id}" aria-expanded="${isOpen}">
+          <span class="rno ${r.bilik ? "" : "slotonly"}">${r.bilik ? esc(r.bilik) : esc(r.slot || "—")}</span>
+          <span class="rmain"><span class="t1">${esc(r.hotel)}</span>
+            <span class="t2">${board ? `<span class="chip ${board[0]}">${board[1]}</span>` : ""}<span>${esc(r.jenis || "")} · ${names.length} pax${g ? " · " + esc(g.kod || "") : ""}</span>${nA ? `<span class="chip bad">${nA} complaint${nA > 1 ? "s" : ""}</span>` : ""}</span></span>
+          <span class="rchev">${chev}</span>
+        </button>
+        <button class="status-btn ${st} ${S.pop === "room:" + r.id ? "pop" : ""}" data-act="cycle" data-id="${r.id}" ${S.readOnly ? "disabled" : ""}>${STATUS_LABEL[st]}</button>
+      </div>
+      <div class="rnames">${ppl.map(nameBtn).join("")}</div>
+      ${isOpen ? `<div class="rbody">
+        <div class="row" style="gap:8px"><input class="roomno" id="rn-${r.id}" data-room="${r.id}" value="${esc(r.bilik || "")}" placeholder="Room no." aria-label="Room number for ${esc(r.slot || "")}" ${S.readOnly ? "disabled" : ""}><span class="slot" style="margin:0">${esc(r.slot || "")} · ${esc(r.bandar || "")}${r.masuk ? ` · ${esc(r.masuk.replace(/ 20\d\d$/, ""))} → ${esc((r.keluar || "").replace(/ 20\d\d$/, ""))}` : ""}</span></div>
+        ${meals.length ? `<div class="meal" style="margin:0">${meals.map(([c, l]) => `<span class="chip ${c}">${l}</span>`).join("")}</div>` : ""}
+        ${r.ref || r.conf ? `<div class="occ"><span class="meta">${r.ref ? "Booking " + esc(r.ref) : ""}${r.ref && r.conf ? " · " : ""}${r.conf ? "Conf " + esc(r.conf) : ""}</span></div>` : ""}
+        <div class="row"><button class="btn small" data-act="aduanRoom" data-id="${r.id}">+ Complaint</button><button class="btn small ghost danger" data-act="delRoom" data-id="${r.id}" aria-label="Delete room ${esc(roomLabel(r))}" ${S.readOnly ? "disabled" : ""}>Delete</button></div>
+      </div>` : ""}
+    </article>`; }).join("");
+  return `
+  <section class="filters">
+    <label class="f" for="rf-g">Group<select id="rf-g" data-filter="g"><option value="">All groups</option>${gOpts(F.g)}</select></label>
+    <label class="f" for="rf-h">Hotel<select id="rf-h" data-filter="h"><option value="">All hotels</option>${hotels.map(h => `<option ${F.h === h ? "selected" : ""}>${esc(h)}</option>`).join("")}</select></label>
+    <label class="f" for="rf-q">Search name, room or booking<input id="rf-q" data-filter="q" value="${esc(F.q)}" placeholder="e.g. Aminah, 1204 or UM16341"></label>
+  </section>
+  ${cities.length > 1 ? `<div class="seg" role="group" aria-label="City" style="align-self:flex-start"><button data-act="rC" data-c="" aria-pressed="${!F.c}">All cities</button>${cities.map(c => `<button data-act="rC" data-c="${c}" aria-pressed="${F.c === c}">${c}</button>`).join("")}</div>` : ""}
+  <section style="display:flex;flex-direction:column;gap:8px">
+    <div class="row spread"><span style="font-weight:700">${list.length} rooms · ${nPeople} people${anyQF ? ` <span style="font-weight:500;color:var(--muted)">(filtered)</span>` : ""}</span>${anyQF ? `<button class="btn small ghost" data-act="qfClear">Clear filters</button>` : ""}</div>
+    <div class="qfbar" role="group" aria-label="Quick filters">${qchips}</div>
+  </section>
+  ${S.showRoomForm ? "" : `<div class="row"><button class="btn" data-act="roomForm" ${S.readOnly ? "disabled" : ""}>+ Add rooms</button><span style="font-size:.78rem;color:var(--muted)">Type the real room number in the box once the hotel assigns it.</span></div>`}
+  <form class="panel" id="roomForm" ${S.showRoomForm ? "" : "hidden"}>
+    <div class="row spread"><h2>Add rooms</h2><button type="button" class="btn small ghost" data-act="roomFormClose">Close</button><button type="button" class="btn small ghost" data-act="toggleImport">${S.showImport ? "Add one room" : "Paste a list from Excel"}</button></div>
+    ${S.showImport ? `<label class="f" for="importBox">One room per line: group code, hotel, room no., type, occupants (separate names with ;)
+      <textarea id="importBox" placeholder="MH30N, Safwah Royale Orchid, 1204, Quad, Ahmad; Ali; Hassan; Osman&#10;MH30N, Safwah Royale Orchid, 1205, Triple, Aminah; Siti; Zainab"></textarea></label>
+      <div class="row"><button type="button" class="btn primary" data-act="import" ${S.readOnly ? "disabled" : ""}>Import rooms</button><span style="font-size:.78rem;color:var(--muted)">Tab-separated rows copied from Excel also work.</span></div>` : `
+    <div class="grid2">
+      <label class="f" for="rm-g">Group<select id="rm-g" name="groupId" required><option value="">Choose a group</option>${gOpts(F.g)}</select></label>
+      <label class="f" for="rm-h">Hotel<input id="rm-h" name="hotel" list="hotelList" required></label>
+      <label class="f" for="rm-b">Room no.<input id="rm-b" name="bilik" required></label>
+      <label class="f" for="rm-j">Type<select id="rm-j" name="jenis"><option>Quad</option><option>Triple</option><option>Double</option><option>Single</option><option>Quint</option></select></label>
+    </div>
+    <label class="f" for="rm-p">Occupants (separate with ;)<input id="rm-p" name="penghuni" placeholder="Ahmad; Ali; Hassan; Osman"></label>
+    <div class="row"><button class="btn primary" type="submit" ${S.readOnly ? "disabled" : ""}>Add room</button></div>`}
+    <datalist id="hotelList">${[...new Set([...hotels, ...S.groups.flatMap(g => [g.hotelTaif, g.hotelMakkah, g.hotelMadinah]).filter(Boolean)])].map(h => `<option value="${esc(h)}">`).join("")}</datalist>
+  </form>
+  ${rows ? `${list.length > 1 ? `<div class="gtools"><button class="btn small ghost" data-act="rAll" data-v="${list.every(r => S.openR[r.id]) ? "0" : "1"}">${list.every(r => S.openR[r.id]) ? "Collapse all" : "Expand all"}</button></div>` : ""}<div class="rlist">${rows}</div>` : emptyState("No rooms yet. Add them one by one or paste a list from Excel.")}`;
+}
+
+/* ---------- Complaints ---------- */
+const KATEGORI = ["Room: air-con", "Room: water / toilet", "Room: key / card", "Room: cleanliness", "Room: bed", "Room: change request", "Food", "Bus / transport", "Health", "Lost baggage", "Nusuk / Raudhah", "Other"];
+const AST = { baru: "New", tindakan: "In progress", selesai: "Resolved" };
+function openAduan() { return S.aduan.filter(a => a.status !== "selesai"); }
+function aduanAlert() {
+  const o = openAduan(); if (!S.aduan.length) return "";
+  const urg = o.filter(a => a.keutamaan === "segera").length;
+  if (!o.length) return `<div class="alert-line calm"><span>All ${S.aduan.length} complaints are resolved.</span></div>`;
+  return `<div class="alert-line"><span>${o.length} open complaint${o.length > 1 ? "s" : ""}${urg ? ` · ${urg} urgent` : ""}</span><button class="btn small" data-act="goAduan">View complaints</button></div>`;
+}
+function viewAduan() {
+  const F = S.aduanFilter, P = S.aduanPrefill || {};
+  const list = S.aduan.filter(a => (F.st === "semua" || (F.st === "selesai" ? a.status === "selesai" : a.status !== "selesai")) && (!F.g || a.groupId === F.g) && (!F.k || a.kategori === F.k));
+  const rank = a => (a.status === "selesai" ? 2 : 0) + (a.keutamaan === "segera" ? 0 : 1);
+  list.sort((a, b) => rank(a) - rank(b) || (F.st === "selesai" ? (b.selesaiPada || "").localeCompare(a.selesaiPada || "") : (a.dilapor || "").localeCompare(b.dilapor || "")));
+  const cnt = st => S.aduan.filter(a => a.status === st && (!F.g || a.groupId === F.g)).length;
+  const gOpts = sel => S.groups.map(g => `<option value="${g.id}" ${sel === g.id ? "selected" : ""}>${esc(g.kod || g.nama)}</option>`).join("");
+  const roomOpts = [...new Set(S.rooms.filter(r => !P.groupId || r.groupId === P.groupId).map(r => r.bilik))].map(b => `<option value="${esc(b)}">`).join("");
+  const cards = list.map(a => {
+    const g = gById(a.groupId); const st = a.status || "baru";
+    const log = (a.tindakan || []).map(t => `<div><b>${esc(fmtTs(t.pada))}</b> · ${esc(t.nota)}</div>`).join("");
+    return `<article class="acard s-${st} ${a.keutamaan === "segera" ? "urgent" : ""}">
+      <div class="row spread" style="align-items:start;padding-right:18px">
+        <div class="row" style="gap:6px">${g ? `<span class="chip grp">${esc(g.kod || g.nama)}</span>` : ""}${a.bilik ? `<span class="chip">Room ${esc(a.bilik)}</span>` : ""}<span class="chip">${esc(a.kategori)}</span>${a.keutamaan === "segera" && st !== "selesai" ? '<span class="chip bad">Urgent</span>' : ""}</div>
+        <span class="chip ${st === "selesai" ? "ok" : st === "tindakan" ? "md" : "warn"}">${AST[st]}</span>
+      </div>
+      <div class="txt">${esc(a.keterangan)}</div>
+      <div class="ev-meta" style="margin-top:0">${a.pelapor ? `<span>From ${esc(a.pelapor)}</span>` : ""}${a.petugas ? `<span>· Handled by ${esc(a.petugas)}</span>` : ""}<span>· Reported ${esc(fmtTs(a.dilapor))}${st !== "selesai" ? ` (${ageTxt(a.dilapor)})` : ""}</span>${st === "selesai" && a.selesaiPada ? `<span>· Resolved ${esc(fmtTs(a.selesaiPada))}</span>` : ""}</div>
+      ${log ? `<div class="log">${log}</div>` : ""}
+      ${S.noteOpen === a.id ? `<div class="row" style="flex-wrap:nowrap"><input id="note-${a.id}" placeholder="e.g. Hotel technician called" aria-label="Action note"><button class="btn small primary" data-act="saveNote" data-id="${a.id}">Save</button></div>` : ""}
+      <div class="row">
+        ${st === "baru" ? `<button class="btn small" data-act="aSt" data-st="tindakan" data-id="${a.id}" ${S.readOnly ? "disabled" : ""}>Start handling</button>` : ""}
+        ${st !== "selesai" ? `<button class="btn small primary" data-act="aSt" data-st="selesai" data-id="${a.id}" ${S.readOnly ? "disabled" : ""}>Mark resolved</button>` : `<button class="btn small" data-act="aSt" data-st="tindakan" data-id="${a.id}" ${S.readOnly ? "disabled" : ""}>Reopen</button>`}
+        <button class="btn small ghost" data-act="noteToggle" data-id="${a.id}" ${S.readOnly ? "disabled" : ""}>+ Action note</button>
+        <button class="btn small ghost danger" data-act="delAduan" data-id="${a.id}" ${S.readOnly ? "disabled" : ""}>Delete</button>
+      </div>
+    </article>`;
+  }).join("");
+  return `
+  <form class="panel" id="aduanForm">
+    <h2>Log a complaint</h2>
+    <div class="grid2">
+      <label class="f" for="ad-g">Group<select id="ad-g" name="groupId" required><option value="">Choose a group</option>${gOpts(P.groupId)}</select></label>
+      <label class="f" for="ad-b">Room no. (if relevant)<input id="ad-b" name="bilik" list="adRooms" value="${esc(P.bilik || "")}" placeholder="e.g. 1204"><datalist id="adRooms">${roomOpts}</datalist></label>
+      <label class="f" for="ad-k">Category<select id="ad-k" name="kategori">${KATEGORI.map(k => `<option ${P.kategori === k ? "selected" : ""}>${esc(k)}</option>`).join("")}</select></label>
+      <label class="f" for="ad-u">Priority<select id="ad-u" name="keutamaan"><option value="biasa">Normal</option><option value="segera">Urgent</option></select></label>
+      <label class="f" for="ad-p">Reported by<input id="ad-p" name="pelapor" placeholder="Pilgrim or leader name"></label>
+      <label class="f" for="ad-t">Handled by<input id="ad-t" name="petugas" list="petugasList" placeholder="Staff name"><datalist id="petugasList">${CONTACTS.map(c => `<option value="${esc(c.n)}">`).join("")}</datalist></label>
+    </div>
+    <label class="f" for="ad-d">Details<textarea id="ad-d" name="keterangan" class="ta-plain" required placeholder="e.g. Air-con not cooling since last night, elderly pilgrim"></textarea></label>
+    <div class="row"><button class="btn primary" type="submit" ${S.readOnly ? "disabled" : ""}>Log complaint</button>${S.aduanPrefill ? `<button type="button" class="btn ghost" data-act="clearPrefill">Clear</button>` : ""}</div>
+  </form>
+  <section class="row spread">
+    <div class="seg" role="group" aria-label="Filter by status">
+      <button data-act="aF" data-st="buka" aria-pressed="${F.st === "buka"}">Open · ${cnt("baru") + cnt("tindakan")}</button>
+      <button data-act="aF" data-st="selesai" aria-pressed="${F.st === "selesai"}">Resolved · ${cnt("selesai")}</button>
+      <button data-act="aF" data-st="semua" aria-pressed="${F.st === "semua"}">All</button>
+    </div>
+    <div class="row"><span class="chip warn">${cnt("baru")} new</span><span class="chip md">${cnt("tindakan")} in progress</span><span class="chip ok">${cnt("selesai")} resolved</span></div>
+  </section>
+  <section class="filters">
+    <select id="af-g" data-afilter="g" aria-label="Filter by group"><option value="">All groups</option>${gOpts(F.g)}</select>
+    <select id="af-k" data-afilter="k" aria-label="Filter by category"><option value="">All categories</option>${KATEGORI.map(k => `<option ${F.k === k ? "selected" : ""}>${esc(k)}</option>`).join("")}</select>
+  </section>
+  ${cards ? `<div class="alist">${cards}</div>` : emptyState(S.aduan.length ? "No complaints match these filters." : "No complaints yet. Log one with the form above, or tap + Complaint on a room in the Rooms tab.")}`;
+}
+
+/* ---------- Contacts & itinerary ---------- */
+function contactCard(n, r, t) {
+  return `<div class="contact"><div class="av">${esc(initials(n))}</div><div class="who"><b>${esc(n)}</b><span>${esc(r)}</span><div class="tel">${esc(t)}</div></div>
+    <button class="btn small" data-act="copy" data-t="${esc(t)}">Copy</button></div>`;
+}
+function viewKenalan() {
+  const gc = S.groups.filter(isActive).flatMap(g => [g.telKetua ? contactCard(g.ketua || "Leader", "Leader · " + (g.kod || g.nama), g.telKetua) : "", g.telMutawwif ? contactCard(g.mutawwif || "Mutawwif", "Mutawwif · " + (g.kod || g.nama), g.telMutawwif) : ""]).join("");
+  return `<section style="display:flex;flex-direction:column;gap:12px"><h2>Ground staff & KLIA</h2>
+    <div class="contacts">${CONTACTS.map(c => contactCard(c.n, c.r, c.t)).join("")}</div></section>
+    <section style="display:flex;flex-direction:column;gap:12px"><h2>Group leaders & mutawwif</h2>
+    ${gc ? `<div class="contacts">${gc}</div>` : `<div class="notice">Add leader and mutawwif numbers in the Groups tab and they'll show up here.</div>`}</section>
+    <div class="notice">Hotel check-in 17:00, check-out 12:00 (Makkah & Madinah).</div>`;
+}
+function dayEditor(g, n) {
+  const dr = S.editDraft || [];
+  const KINDS = [["", "Activity"], ["in", "Check-in"], ["out", "Check-out"], ["move", "Transfer"], ["train", "Train"], ["air", "Flight"]];
+  return `<form class="itbody dayedit" id="dayForm" data-g="${g.id}" data-n="${n}">
+    <div class="eyebrow" style="margin-bottom:4px">Editing ${esc(dayLabel(tplOf(g)[n]))} for ${esc(g.kod || g.nama)} only</div>
+    ${dr.map((it, i) => `<div class="edrow">
+      <div class="edtop"><input type="time" id="ed-${i}-t" data-ed="${i}" data-fld="t" value="${esc(it.t || "")}" aria-label="Time">
+        <input id="ed-${i}-a" data-ed="${i}" data-fld="a" value="${esc(it.a || "")}" placeholder="Activity" aria-label="Activity">
+        <button type="button" class="btn small ghost danger" data-act="edDel" data-i="${i}" aria-label="Remove activity">✕</button></div>
+      <div class="edsub"><select id="ed-${i}-k" data-ed="${i}" data-fld="k" aria-label="Type">${KINDS.map(([v, l]) => `<option value="${v}" ${(it.k || "") === v ? "selected" : ""}>${l}</option>`).join("")}</select>
+        <input id="ed-${i}-tr" data-ed="${i}" data-fld="tr" value="${esc(it.tr === "—" ? "" : it.tr || "")}" placeholder="Transport (Bus, Walk…)" aria-label="Transport">
+        <div class="edmove"><button type="button" class="btn small ghost" data-act="edMove" data-i="${i}" data-d="-1" aria-label="Move up" ${i === 0 ? "disabled" : ""}>↑</button><button type="button" class="btn small ghost" data-act="edMove" data-i="${i}" data-d="1" aria-label="Move down" ${i === dr.length - 1 ? "disabled" : ""}>↓</button></div></div>
+      <input id="ed-${i}-d" data-ed="${i}" data-fld="d" value="${esc(it.d || "")}" placeholder="Details (optional)" aria-label="Details">
+    </div>`).join("")}
+    <div class="row"><button type="button" class="btn small" data-act="edAdd">+ Add activity</button></div>
+    <div class="row" style="margin-top:4px"><button type="submit" class="btn primary">Save changes</button><button type="button" class="btn ghost" data-act="edCancel">Cancel</button></div>
+    <div style="font-size:.74rem;color:var(--muted)">Times sort automatically when you save. Ticks on unchanged activities are kept.</div>
+  </form>`;
+}
+function trainTrips() {
+  const P = people(); const trips = [];
+  S.groups.forEach(g => {
+    if (!g.tarikh) return;
+    const base = (TEMPLATES[g.pakej] || TEMPLATES["MH-MK"]).days;
+    const ppl = [...P.values()].filter(p => p.groupId === g.id);
+    const flagged = ppl.filter(p => S.jemaah[p.id]?.flags?.train);
+    const whole = g.transfer === "train";
+    if (!whole && !flagged.length) return;
+    base.forEach((d, n) => {
+      if (!d.items.some(it => /447 km/.test(it.a))) return;
+      const dest = d.where === "MK" ? "Makkah" : "Madinah"; const from = dest === "Makkah" ? "Madinah" : "Makkah";
+      trips.push({ id: g.id + "-" + n, g, n, date: addDays(g.tarikh, n), from, dest, whole, pax: whole ? ppl : flagged });
+    });
+  });
+  return trips.sort((a, b) => a.date.localeCompare(b.date) || (a.g.trainDep || "99").localeCompare(b.g.trainDep || "99"));
+}
+function viewTrain() {
+  const today = todayStr(); const F = S.trFilter;
+  const all = trainTrips(); const list = all.filter(t => F === "all" || t.date >= today);
+  const chev = '<svg class="i" viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M6 9l6 6 6-6"/></svg>';
+  const cards = list.map(t => {
+    const g = t.g; const bd = S.board[t.id] || {}; const boarded = t.pax.filter(p => bd[p.id]).length; const isOpen = S.openTr[t.id] ?? (t.date === today);
+    const dt = parseD(t.date);
+    return `<article class="tcard ${t.date === today ? "today" : ""}">
+      <button class="trhead" data-act="trToggle" data-id="${t.id}" aria-expanded="${isOpen}">
+        <span class="trdate"><b>${dt.getUTCDate()}</b><span>${MONTHS[dt.getUTCMonth()]}</span></span>
+        <span style="min-width:0;display:flex;flex-direction:column;gap:4px">
+          <span class="trroute">${t.from} → ${t.dest}${t.date === today ? '<span class="chip ok">Today</span>' : ""}</span>
+          <span class="ev-meta" style="margin:0"><span class="chip grp">${esc(g.kod || g.nama)}</span><span class="trtimes">${g.trainDep ? esc(g.trainDep) : "--:--"} → ${g.trainArr ? esc(g.trainArr) : "--:--"}</span>${g.trainNo ? `<span>${esc(g.trainNo)}</span>` : ""}<span>· ${t.pax.length} pax${t.whole ? "" : " (part of group)"}</span></span>
+        </span>
+        <span class="row" style="gap:8px;flex-wrap:nowrap"><span class="chip ${boarded === t.pax.length && t.pax.length ? "ok" : boarded ? "warn" : ""}">${boarded}/${t.pax.length}</span><span class="rchev">${chev}</span></span>
+      </button>
+      ${isOpen ? `<div class="tbody">
+        ${!g.trainDep || !g.trainNo ? `<div class="notice warn" style="font-size:.8rem">Train time or number not set yet. Add them in Groups → Edit.</div>` : ""}
+        ${g.trainNota ? `<div style="font-size:.84rem"><span class="eyebrow">Notes</span><div>${esc(g.trainNota)}</div></div>` : ""}
+        ${t.dest === "Makkah" ? `<div style="font-size:.8rem;color:var(--muted)">Be in ihram before boarding. Make niyyah when the train passes the miqat.</div>` : ""}
+        <div class="row spread"><span class="eyebrow">Passengers · ${boarded} of ${t.pax.length} on board</span>
+          <button class="btn small ${boarded === t.pax.length ? "ghost" : "primary"}" data-act="boardAll" data-id="${t.id}" ${S.readOnly || !t.pax.length ? "disabled" : ""}>${boarded === t.pax.length && t.pax.length ? "Untick all" : "✓ All on board"}</button></div>
+        ${t.pax.length ? `<div class="pax">${t.pax.map(p => `<div class="paxrow ${bd[p.id] ? "on" : ""}"><button class="tick sm ${S.pop === "board:" + t.id + p.id ? "pop" : ""}" aria-pressed="${!!bd[p.id]}" aria-label="On board: ${esc(displayName(p.nama))}" data-act="board" data-id="${t.id}" data-pid="${p.id}" ${S.readOnly ? "disabled" : ""}>✓</button>${nameBtn(p)}</div>`).join("")}</div>` : `<div class="notice">No passengers yet.</div>`}
+        ${boarded < t.pax.length && boarded ? `<div style="font-size:.8rem;color:var(--warn);font-weight:600">Not on board yet: ${t.pax.filter(p => !bd[p.id]).map(p => esc(displayName(p.nama))).join(", ")}</div>` : ""}
+        <div class="row"><button class="btn small" data-act="edit" data-id="${g.id}" data-go="group">Edit train details</button></div>
+      </div>` : ""}
+    </article>`;
+  }).join("");
+  return `<section class="row spread"><div><h2>Haramain train</h2><div style="font-size:.8rem;color:var(--muted)">${list.length} journey${list.length === 1 ? "" : "s"} · ${list.reduce((n, t) => n + t.pax.length, 0)} passengers</div></div>
+      <div class="seg" role="group" aria-label="Which journeys"><button data-act="trF" data-f="up" aria-pressed="${F !== "all"}">Upcoming</button><button data-act="trF" data-f="all" aria-pressed="${F === "all"}">All</button></div></section>
+    ${cards ? `<div class="glist">${cards}</div>` : emptyState(all.length ? "No upcoming train journeys." : "No group is taking the train yet. Set it in Groups → Edit → Makkah ↔ Madinah transfer, or mark single pilgrims with the “Takes the train” flag.")}`;
+}
+function viewJadual() {
+  const today = todayStr();
+  const F = S.itFilter || "aktif";
+  const list = S.groups.filter(g => g.tarikh && (F === "semua" ? true : !g.arkib && groupWhere(g, today) !== "selesai"))
+    .sort((a, b) => a.tarikh.localeCompare(b.tarikh) || (a.kod || "").localeCompare(b.kod || ""));
+  const chev = '<svg class="i" viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M6 9l6 6 6-6"/></svg>';
+  const cards = list.map(g => {
+    const T = tplOf(g); const w = groupWhere(g, today); const nNow = groupDay(g, today); const isOpen = !!S.openIt[g.id];
+    const days = isOpen ? T.map((d, n) => {
+      const date = addDays(g.tarikh, n); const key = g.id + ":" + n;
+      const open = S.openDay[key] ?? (n === nNow);
+      const doneN = d.items.filter((_, i) => isDone(g.id, n, i)).length; const sent = isSent(g.id, n);
+      const hotel = hotelFor(g, d.where);
+      return `<div class="itday ${date === today ? "today" : date < today ? "past" : ""}">
+        <button class="ithead" data-act="dayToggle" data-k="${key}" aria-expanded="${open}">
+          <span class="itdate"><b>${parseD(date).getUTCDate()}</b><span>${DAYS[parseD(date).getUTCDay()]}</span></span>
+          <span class="rmain"><span class="t1">${esc(dayLabel(d))} · ${esc(d.items[0]?.a || "")}${d.items.length > 1 ? ` <span style="color:var(--muted);font-weight:500">+${d.items.length - 1}</span>` : ""}</span>
+            <span class="t2">${whereChip(d.where)}${date === today ? '<span class="chip ok">Today</span>' : ""}${sent ? '<span class="chip ok">Sent</span>' : date >= today ? '<span class="chip warn">Not sent</span>' : ""}<span>${doneN}/${d.items.length} done</span>${d.edited ? '<span class="chip move">Edited</span>' : ""}</span></span>
+          <span class="rchev">${chev}</span>
+        </button>
+        ${open && S.editDay === key ? dayEditor(g, n) : open ? `<div class="itbody">${hotel ? `<div class="ev-meta" style="margin:0 0 4px">${esc(hotel)}</div>` : ""}${d.items.map((it, i) => `<div class="itrow ${isDone(g.id, n, i) ? "done" : ""}"><span class="time ${it.t ? "" : "none"}">${it.t || "—"}</span><div style="min-width:0"><div class="ev-title">${esc(it.a)}</div><div class="ev-meta" style="margin-top:3px">${kindChip(it.k)}${trTxt(it, g) ? `<span>${esc(trTxt(it, g))}</span>` : ""}${isDone(g.id, n, i) ? '<span class="chip ok">Done</span>' : ""}</div>${it.d ? `<div class="ev-detail">${esc(it.d)}</div>` : ""}</div></div>`).join("")}<div class="row" style="margin-top:8px"><button class="btn small" data-act="editDay" data-k="${key}" ${S.readOnly ? "disabled" : ""}>Edit this day</button></div></div>` : ""}
+      </div>`; }).join("") : "";
+    return `<article class="gcard" data-w="${w}">
+      <button class="ghead" data-act="itToggle" data-id="${g.id}" aria-expanded="${isOpen}">
+        <span class="l1"><span class="chip grp">${esc(g.kod || "—")}</span><h3>${esc(g.nama)}</h3></span>
+        <span class="r">${whereChip(w)}<span class="chev">${chev}</span></span>
+        <span class="l2"><span class="mono">${fmtShort(g.tarikh)} – ${fmtShort(addDays(g.tarikh, T.length - 1))}</span><span>${esc(pkgName(g))}</span>${nNow !== null ? `<span>${esc(dayLabel(T[nNow]))} today</span>` : ""}</span>
+      </button>
+      ${isOpen ? `<div class="gbody" style="gap:8px">
+        <div class="row spread"><span style="font-size:.78rem;color:var(--muted)">Tap a day to see its activities.</span>
+          <span class="row" style="gap:6px"><button class="btn small ghost" data-act="daysAll" data-id="${g.id}" data-v="1">Open all days</button><button class="btn small ghost" data-act="daysAll" data-id="${g.id}" data-v="0">Close all</button></span></div>
+        <div class="itdays">${days}</div>
+        <div class="row"><button class="btn small primary" data-act="checklist" data-id="${g.id}">Open checklist</button>${Array.isArray(g.jadual) ? `<button class="btn small ghost danger" data-act="resetJadual" data-id="${g.id}" ${S.readOnly ? "disabled" : ""}>Reset to package schedule</button>` : ""}</div>
+      </div>` : ""}
+    </article>`;
+  }).join("");
+  return `<section class="row spread">
+      <div class="seg" role="group" aria-label="Which groups"><button data-act="itF" data-f="aktif" aria-pressed="${F !== "semua"}">Upcoming & active</button><button data-act="itF" data-f="semua" aria-pressed="${F === "semua"}">All groups</button></div>
+      ${list.length > 1 ? `<button class="btn small ghost" data-act="itAll" data-v="${list.every(g => S.openIt[g.id]) ? "0" : "1"}">${list.every(g => S.openIt[g.id]) ? "Collapse all" : "Expand all"}</button>` : ""}
+    </section>
+    ${cards ? `<div class="glist">${cards}</div>` : emptyState("No groups with a start date yet. Add one in the Groups tab.")}`;
+}
+
+/* ---------- sheet (search, person, report) ---------- */
+function searchResults() {
+  const q = normName(S.sq); if (q.length < 2) return `<div class="notice">Type at least 2 letters of a name, room number or booking code (UM…).</div>`;
+  const res = [...people().values()].filter(p => normName(p.nama).includes(q) || p.rooms.some(r => [r.bilik, r.slot, r.ref].some(x => normName(x).includes(q)))).slice(0, 40);
+  if (!res.length) return `<div class="notice">No pilgrim matches “${esc(S.sq)}”.</div>`;
+  return res.map(p => { const g = gById(p.groupId); const r = curRoom(p, todayStr()) || p.rooms[0];
+    return `<button class="sitem" data-act="person" data-pid="${p.id}"><span class="top"><span class="chip grp">${esc(g?.kod || "")}</span>${esc(displayName(p.nama))}${flagChips(p)}</span><span class="sub">${r ? `${esc(r.hotel)} · ${r.bilik ? "Room " + esc(r.bilik) : esc(r.slot || "") + " (no room no. yet)"}` : ""}${p.rooms[0]?.ref ? " · " + esc(p.rooms[0].ref) : ""}</span></button>`; }).join("");
+}
+function personSheet(id) {
+  const p = people().get(id); const doc = S.jemaah[id] || {};
+  if (!p) return `<div class="sheet-head"><h2>Pilgrim not found</h2><button class="btn small ghost" data-act="closeSheet">Close</button></div>`;
+  const g = gById(p.groupId); const fl = doc.flags || {}; const ap = doc.appt || {};
+  const auto = autoFlags(p);
+  const stays = ["Taif", "Makkah", "Madinah"].map(c => p.rooms.find(r => r.bandar === c)).filter(Boolean).map(r => {
+    const mates = (r.penghuni || "").split(/;\s*/).filter(n => normName(n) !== normName(p.nama));
+    return `<div class="stay"><div class="row spread"><span class="eyebrow">${esc(r.bandar)} · ${esc((r.masuk || "").replace(/ 20\d\d$/, ""))} → ${esc((r.keluar || "").replace(/ 20\d\d$/, ""))}</span>${r.bilik ? `<b>Room ${esc(r.bilik)}</b>` : `<span class="chip warn">${esc(r.slot)} · no room no.</span>`}</div>
+      <div style="font-weight:600">${esc(r.hotel)} <span style="font-weight:400;color:var(--muted)">· ${esc(r.jenis)}</span></div>
+      ${mealOf(r).length ? `<div class="meal">${mealOf(r).map(([c, l]) => `<span class="chip ${c}">${l}</span>`).join("")}</div>` : ""}
+      ${mates.length ? `<div style="font-size:.8rem;color:var(--muted)">With: ${mates.map(m => esc(displayName(m))).join(", ")}</div>` : ""}</div>`; }).join("");
+  return `<div class="sheet-head"><div style="min-width:0"><div class="row" style="gap:6px"><span class="chip grp">${esc(g?.kod || "")}</span>${auto.map(k => `<span class="fl ${k} auto">${k === "vvip" ? "VVIP" : k === "child" ? "Child" : "Staff"}</span>`).join("")}</div>
+    <h2 style="margin-top:8px">${esc(displayName(p.nama))}</h2><div style="font-size:.78rem;color:var(--muted)">${esc(p.rooms[0]?.ref || "")}${g?.ketua ? ` · Leader ${esc(g.ketua)}${g.telKetua ? " " + esc(g.telKetua) : ""}` : ""}</div></div>
+    <button class="btn small ghost" data-act="closeSheet" aria-label="Close">Close</button></div>
+  ${stays}
+  <form id="personForm" data-pid="${id}" style="display:flex;flex-direction:column;gap:12px">
+    <div><span class="eyebrow">Flags</span><div class="flagpick" style="margin-top:8px">${FLAGS.map(f => { const on = f.k === "vvip" ? (fl.vvip ?? auto.includes("vvip")) : !!fl[f.k]; return `<button type="button" data-act="toggleFlag" data-f="${f.k}" aria-pressed="${on}">${esc(f.l)}</button>`; }).join("")}</div></div>
+    <div class="grid2" id="apptFields" ${fl.hospital ? "" : "hidden"}>
+      <label class="f" for="pa-d">Appointment date<input type="date" id="pa-d" name="tarikh" value="${esc(ap.tarikh || "")}"></label>
+      <label class="f" for="pa-t">Time<input type="time" id="pa-t" name="masa" value="${esc(ap.masa || "")}"></label>
+      <label class="f" for="pa-p" style="grid-column:1/-1">Hospital / clinic<input id="pa-p" name="tempat" value="${esc(ap.tempat || "")}" placeholder="e.g. King Abdullah Medical City"></label>
+    </div>
+    <div><span class="eyebrow">Photos & remarks</span><div id="photoBox" style="margin-top:8px;display:flex;flex-direction:column;gap:10px">${photosHtml(id)}</div></div>
+    <label class="f" for="pa-n">Notes for staff<textarea id="pa-n" name="nota" class="ta-plain" placeholder="e.g. Diabetic, insulin in room fridge. Prefers ground-floor lift.">${esc(doc.nota || "")}</textarea></label>
+    <div class="row"><button class="btn primary" type="submit" ${S.readOnly ? "disabled" : ""}>Save</button><button type="button" class="btn ghost" data-act="aduanPerson" data-pid="${id}">+ Complaint for this pilgrim</button></div>
+  </form>`;
+}
+function blobUrl(ph) { return window.umrahPhotoUrl ? window.umrahPhotoUrl(ph.id, () => { if (S.sheet && S.sheet.type === "person") renderPhotos(S.sheet.id); if (S.lightbox) renderLightbox(); }) : "/_blob/" + ph.id; }
+function photosHtml(id) {
+  const list = S.jemaah[id]?.gambar || [];
+  const canUp = !!assetsNs && !S.readOnly;
+  return `${list.length ? `<div class="photos">${list.map((ph, i) => `<button type="button" class="ph" data-act="openPhoto" data-pid="${id}" data-i="${i}" aria-label="Open photo ${i + 1}"><img src="${esc(blobUrl(ph))}" alt="${esc(ph.cap || "Photo")}" loading="lazy"><span>${esc(ph.cap || fmtTs(ph.at))}</span></button>`).join("")}</div>` : ""}
+    ${canUp ? `<div class="phadd"><input type="text" id="phCap" placeholder="Remark for the photo (e.g. Doctor's letter)" aria-label="Photo remark"><button type="button" class="btn small" data-act="addPhoto" data-pid="${id}">+ Add photo</button></div>`
+      : `<div style="font-size:.78rem;color:var(--muted)">${list.length ? "" : "No photos yet. "}${assetsNs === null && !db ? "Photos work on the shared page only." : S.readOnly || !assetsNs ? "Only people with Editor access can add photos." : ""}</div>`}`;
+}
+function renderPhotos(id) { const box = document.getElementById("photoBox"); if (box) { const cap = document.getElementById("phCap")?.value || ""; box.innerHTML = photosHtml(id); const c = document.getElementById("phCap"); if (c) c.value = cap; } }
+function saveJemaahPatch(id, patch) {
+  const p = people().get(id); const cur = S.jemaah[id] || { groupId: p?.groupId || "", nama: p?.nama || "", flags: {}, nota: "", appt: null };
+  const { id: _x, ...rest } = cur; const doc = { ...rest, ...patch, kemaskini: new Date().toISOString() };
+  S.jemaah[id] = { ...doc, id }; putDoc("jemaah", id, doc); return doc;
+}
+async function shrink(file) {
+  if (!/^image\/(jpeg|png|webp|heic|heif)/i.test(file.type) || file.size < 400000) return file;
+  try {
+    const bmp = await createImageBitmap(file); const k = Math.min(1, 1600 / Math.max(bmp.width, bmp.height));
+    const c = document.createElement("canvas"); c.width = Math.round(bmp.width * k); c.height = Math.round(bmp.height * k);
+    c.getContext("2d").drawImage(bmp, 0, 0, c.width, c.height);
+    const blob = await new Promise(r => c.toBlob(r, "image/jpeg", .82)); return blob && blob.size < file.size ? blob : file;
+  } catch (e) { return file; }
+}
+function renderLightbox() {
+  const el = document.getElementById("lightbox"); const lb = S.lightbox;
+  if (!lb) { el.innerHTML = ""; return; }
+  const list = S.jemaah[lb.pid]?.gambar || []; const ph = list[lb.i]; if (!ph) { S.lightbox = null; el.innerHTML = ""; return; }
+  el.innerHTML = `<div class="lightbox" data-act="lbClose" role="dialog" aria-label="Photo"><img src="${esc(blobUrl(ph))}" alt="${esc(ph.cap || "Photo")}">
+    <div class="cap">${esc(ph.cap || "")}<small>${esc(fmtTs(ph.at))}${list.length > 1 ? ` · ${lb.i + 1} of ${list.length}` : ""}</small></div>
+    <div class="row">${list.length > 1 ? `<button class="btn small" data-act="lbNav" data-d="-1">‹ Prev</button><button class="btn small" data-act="lbNav" data-d="1">Next ›</button>` : ""}
+      ${assetsNs && !S.readOnly ? `<button class="btn small" data-act="delPhoto">Delete photo</button>` : ""}<button class="btn small" data-act="lbX">Close</button></div></div>`;
+}
+function renderSheet(force) {
+  const el = document.getElementById("sheet"); const sh = S.sheet;
+  document.getElementById("searchFab").hidden = !!sh;
+  if (!sh) { el.innerHTML = ""; el.dataset.key = ""; document.body.style.overflow = ""; return; }
+  document.body.style.overflow = "hidden";
+  const key = sh.type + ":" + (sh.id || "");
+  if (sh.type === "search") {
+    if (el.dataset.key !== key) { el.innerHTML = `<div class="sheet-bg" data-act="bgClose"><div class="sheet" role="dialog" aria-label="Search pilgrims"><div class="sheet-head"><h2>Find a pilgrim</h2><button class="btn small ghost" data-act="closeSheet">Close</button></div><input id="sq" type="search" placeholder="Name, room no. or UM code" value="${esc(S.sq)}" autocomplete="off"><div class="sres" id="sres"></div></div></div>`; el.dataset.key = key; setTimeout(() => document.getElementById("sq")?.focus(), 30); }
+    document.getElementById("sres").innerHTML = searchResults(); return;
+  }
+  if (sh.type === "person") { if (el.dataset.key !== key || force) { el.innerHTML = `<div class="sheet-bg" data-act="bgClose"><div class="sheet" role="dialog" aria-label="Pilgrim">${personSheet(sh.id)}</div></div>`; el.dataset.key = key; } return; }
+  if (sh.type === "report") {
+    const txt = reportText(S.date);
+    const tg = "https://t.me/share/url?url=" + encodeURIComponent(location.origin + location.pathname) + "&text=" + encodeURIComponent(txt);
+    el.innerHTML = `<div class="sheet-bg" data-act="bgClose"><div class="sheet" role="dialog" aria-label="Daily report"><div class="sheet-head"><div><h2>Daily report</h2><div style="font-size:.78rem;color:var(--muted)">${fmtD(S.date)}</div></div><button class="btn small ghost" data-act="closeSheet">Close</button></div>
+      <textarea class="copybox" id="reportBox" readonly style="min-height:300px">${esc(txt)}</textarea>
+      <div class="row"><a class="btn primary tgbtn" href="${esc(tg)}" target="_blank" rel="noopener"><svg class="i" viewBox="0 0 24 24"><path d="M21 3L3 10.5l7 2.5 2.5 7z"/><path d="M10 13L21 3"/></svg>Send to Telegram</a><button class="btn" data-act="copyReport">Copy text</button></div>
+      <div class="notice" style="font-size:.8rem">Opens Telegram with the report filled in. Pick the chat you share with your partner and tap Send.</div></div></div>`;
+    el.dataset.key = key;
+  }
+}
+
+/* ---------- render ---------- */
+function render() {
+  syncUI();
+  const main = document.getElementById("main");
+  const active = document.activeElement && document.activeElement.id;
+  const caret = active && document.activeElement.selectionStart;
+  const kept = {};
+  if (!S.skipPreserve) main.querySelectorAll("form input[id], form textarea[id], form select[id], input[id^='note-'], input[id^='rn-']").forEach(el => { kept[el.id] = el.value; });
+  S.skipPreserve = false;
+  let banner = "";
+  if (S.mode === "local") banner = `<div class="notice warn">Not connected to the shared database yet, so data is saved on this device only. Fill in config.js (see README) to share it.</div>`;
+  if (S.mode === "error") banner = `<div class="notice warn">Lost connection to the shared data. Reload the page to reconnect.</div>`;
+  if (S.mode === "slow") banner = `<div class="notice warn">Shared data hasn't arrived yet. What you see may be out of date.</div>`;
+  if (S.readOnly && S.mode !== "local") banner += `<div class="notice">You're in view-only mode. Ask the owner for Editor access to tick activities and update rooms.</div>`;
+  const v = { home: viewHome, hari: viewHari, group: viewGroup, bilik: viewBilik, aduan: viewAduan, kenalan: viewKenalan, jadual: viewJadual, train: viewTrain, checklist: viewChecklist }[S.view] || viewHari;
+  main.innerHTML = banner + v();
+  if (S.lastView !== S.view) { main.classList.remove("enter"); void main.offsetWidth; main.classList.add("enter"); S.lastView = S.view; clearTimeout(render.t); render.t = setTimeout(() => main.classList.remove("enter"), 900); }
+  S.pop = null;
+  if (S.just) { const t = document.querySelector(`[data-act][aria-expanded="true"][data-id="${S.just}"], [data-act][aria-expanded="true"][data-k="${S.just}"]`); const box = t && (t.closest(".itday") || t.closest("article")); const body = box && box.querySelector(".itbody, .gbody, .rbody"); if (body) body.classList.add("just"); S.just = null; }
+  const pend = pendingItems(todayStr()); const hb = document.getElementById("homeBadge");
+  hb.className = pend.length && !pend.some(x => x.sev === "bad") ? "warn" : ""; hb.textContent = pend.length ? String(pend.length) : "";
+  const open = openAduan(); const badge = document.getElementById("aduanBadge");
+  badge.className = open.length && !open.some(a => a.keutamaan === "segera") ? "warn" : ""; badge.textContent = open.length ? String(open.length) : "";
+  document.querySelectorAll("nav.tabs button").forEach(b => b.setAttribute("aria-selected", String(b.dataset.view === (S.view === "checklist" ? "group" : S.view))));
+  renderSheet();
+  Object.entries(kept).forEach(([id, val]) => { const el = document.getElementById(id); if (el && el.value !== val) el.value = val; });
+  if (active) { const el = document.getElementById(active); if (el && el.tagName !== "BUTTON") { el.focus(); try { if (caret != null) el.setSelectionRange(caret, caret); } catch (e) {} } }
+}
+
+/* ---------- events ---------- */
+const VIEWS = ["home", "hari", "group", "bilik", "aduan", "jadual"];
+function setView(v) { S.view = v; try { localStorage.setItem("umrah-ops-view", v); } catch (e) {} if (location.hash !== "#" + v) history.replaceState(null, "", "#" + v); render(); window.scrollTo({ top: 0, behavior: "smooth" }); }
+document.querySelector("nav.tabs").addEventListener("click", e => { const b = e.target.closest("button[data-view]"); if (b) setView(b.dataset.view); });
+window.addEventListener("hashchange", () => { const h = location.hash.slice(1); if (VIEWS.includes(h) && h !== S.view) { S.view = h; render(); } });
+
+document.addEventListener("click", async e => {
+  const b = e.target.closest("[data-act]"); if (!b) return;
+  const act = b.dataset.act;
+  if (act === "signOut") { if (b.dataset.confirm !== "1") { b.dataset.confirm = "1"; b.textContent = "Tap again to sign out"; return; } window.umrahSignOut(); return; }
+  if (act === "addPhoto") { S.photoFor = b.dataset.pid; const inp = document.getElementById("photoInput"); inp.value = ""; inp.click(); return; }
+  if (act === "openPhoto") { S.lightbox = { pid: b.dataset.pid, i: +b.dataset.i }; renderLightbox(); return; }
+  if (act === "lbClose") { if (e.target === b) { S.lightbox = null; renderLightbox(); } return; }
+  if (act === "lbX") { S.lightbox = null; renderLightbox(); return; }
+  if (act === "lbNav") { const n = (S.jemaah[S.lightbox.pid]?.gambar || []).length; S.lightbox.i = (S.lightbox.i + +b.dataset.d + n) % n; renderLightbox(); return; }
+  if (act === "delPhoto") {
+    if (b.dataset.confirm !== "1") { b.dataset.confirm = "1"; b.textContent = "Tap again to delete"; return; }
+    const { pid, i } = S.lightbox; const list = [...(S.jemaah[pid]?.gambar || [])]; const [gone] = list.splice(i, 1);
+    saveJemaahPatch(pid, { gambar: list }); S.lightbox = null; renderLightbox(); renderPhotos(pid);
+    if (gone && assetsNs) assetsNs.delete(gone.id).catch(() => {}); toast("Photo deleted"); return;
+  }
+  if (act === "bgClose") { if (e.target === b) { S.sheet = null; renderSheet(); } return; }
+  if (act === "openSearch") { S.sheet = { type: "search" }; renderSheet(); return; }
+  if (act === "closeSheet") { S.sheet = null; renderSheet(); return; }
+  if (act === "person") { S.sheet = { type: "person", id: b.dataset.pid }; renderSheet(true); return; }
+  if (act === "report") { S.sheet = { type: "report" }; renderSheet(); return; }
+  if (act === "copyReport") { const t = document.getElementById("reportBox"); try { await navigator.clipboard.writeText(t.value); toast("Report copied"); } catch (err) { t.focus(); t.select(); toast("Long-press the text to copy it"); } return; }
+  if (act === "toggleFlag") { const on = b.getAttribute("aria-pressed") !== "true"; b.setAttribute("aria-pressed", String(on)); if (b.dataset.f === "hospital") document.getElementById("apptFields").hidden = !on; return; }
+  if (act === "aduanPerson") { const p = people().get(b.dataset.pid); if (p) { const r = curRoom(p, todayStr()) || p.rooms[0]; S.sheet = null; S.skipPreserve = true; S.aduanPrefill = { groupId: p.groupId, bilik: r ? roomLabel(r) : "" }; setView("aduan"); setTimeout(() => { const d = document.getElementById("ad-p"); if (d) d.value = displayName(p.nama); }, 0); } return; }
+  if (act === "day") { S.date = addDays(S.date, +b.dataset.d); render(); }
+  else if (act === "today") { S.date = todayStr(); render(); }
+  else if (act === "goto") { S.date = b.dataset.d; if (S.view === "hari") { S.lastView = null; render(); } else setView("hari"); }
+  else if (act === "tick") {
+    const gid = b.dataset.g, k = pKey(gid, b.dataset.n, b.dataset.i);
+    const p = prog(gid); const cur = { ...p.done };
+    if (cur[k]) delete cur[k]; else { cur[k] = new Date().toISOString(); S.pop = STATE_KEY(gid, b.dataset.n, b.dataset.i); }
+    S.progress[gid] = { done: cur, sent: p.sent }; render();
+    putDoc("progress", gid, { done: cur, sent: p.sent });
+  }
+  else if (act === "sentAll") {
+    const gid = b.dataset.g, n = +b.dataset.n; const g = gById(gid); if (!g) return;
+    const items = tplOf(g)[n].items; const p = prog(gid); const done = { ...p.done }; const sent = { ...p.sent }; const k = "d" + n; const now = new Date().toISOString();
+    const undo = !!sent[k];
+    if (undo) { delete sent[k]; items.forEach((_, i) => delete done[pKey(gid, n, i)]); }
+    else { sent[k] = now; items.forEach((_, i) => { if (!done[pKey(gid, n, i)]) done[pKey(gid, n, i)] = now; }); S.pop = "sent:" + gid + ":" + n; }
+    S.progress[gid] = { done, sent }; render();
+    putDoc("progress", gid, { done, sent });
+    toast(undo ? "Undone for " + (g.kod || g.nama) : "Schedule sent and " + items.length + " activities ticked for " + (g.kod || g.nama));
+  }
+  else if (act === "tickAll") {
+    const gid = b.dataset.g, n = +b.dataset.n; const g = gById(gid); if (!g) return;
+    const items = tplOf(g)[n].items; const p = prog(gid); const cur = { ...p.done };
+    const all = items.every((_, i) => cur[pKey(gid, n, i)]); const now = new Date().toISOString();
+    items.forEach((_, i) => { const k = pKey(gid, n, i); if (all) delete cur[k]; else if (!cur[k]) cur[k] = now; });
+    S.progress[gid] = { done: cur, sent: p.sent }; render();
+    putDoc("progress", gid, { done: cur, sent: p.sent });
+    toast(all ? "All activities unticked for " + (g.kod || g.nama) : "All " + items.length + " activities ticked for " + (g.kod || g.nama));
+  }
+  else if (act === "sent") {
+    const gid = b.dataset.g, k = "d" + b.dataset.n; const p = prog(gid); const sent = { ...p.sent };
+    if (sent[k]) delete sent[k]; else { sent[k] = new Date().toISOString(); S.pop = "sent:" + gid + ":" + b.dataset.n; }
+    S.progress[gid] = { done: p.done, sent }; render();
+    putDoc("progress", gid, { done: p.done, sent });
+    if (sent[k]) toast("Marked as sent");
+  }
+  else if (act === "copyTent") {
+    const g = gById(b.dataset.g); if (!g) return; const txt = tentativeText(g, +b.dataset.n);
+    try { await navigator.clipboard.writeText(txt); toast("Copied. Paste it in WhatsApp, then tap “Schedule not sent yet”."); }
+    catch (err) { S.copyOpen = g.id + ":" + b.dataset.n; render(); const ta = document.getElementById("copy-" + g.id + "-" + b.dataset.n); if (ta) { ta.focus(); ta.select(); } toast("Long-press the text to copy it"); }
+  }
+  else if (act === "hariMode") { S.hariMode = b.dataset.m; S.lastView = null; try { localStorage.setItem("umrah-ops-harimode", S.hariMode); } catch (e) {} render(); }
+  else if (act === "rToggle") { S.just = b.dataset.id; S.openR[b.dataset.id] = !S.openR[b.dataset.id]; render(); if (S.openR[b.dataset.id]) setTimeout(() => { const el = document.getElementById("rn-" + b.dataset.id); if (el && !el.value) el.focus(); }, 50); }
+  else if (act === "rAll") { const on = b.dataset.v === "1"; S.rooms.forEach(r => { S.openR[r.id] = on; }); render(); }
+  else if (act === "gToggle") { S.just = b.dataset.id; S.openG[b.dataset.id] = !S.openG[b.dataset.id]; render(); }
+  else if (act === "gAll") { const on = b.dataset.v === "1"; S.groups.forEach(g => { S.openG[g.id] = on; }); render(); }
+  else if (act === "gF") { S.groupFilter = b.dataset.f; S.lastView = null; render(); }
+  else if (act === "newGroup") { S.skipPreserve = true; S.showGroupForm = true; render(); }
+  else if (act === "checklist") { S.clGroup = b.dataset.id; S.copyOpen = null; setView("checklist"); }
+  else if (act === "backGroups") { setView("group"); }
+  else if (act === "arkib") {
+    const g = gById(b.dataset.id); if (!g) return; const { id, ...rest } = g; const upd = { ...rest, arkib: !g.arkib };
+    Object.assign(g, upd); render(); putDoc("groups", id, upd); toast(upd.arkib ? "Group archived" : "Group restored");
+  }
+  else if (act === "edit") { S.skipPreserve = true; S.editing = b.dataset.id; if (b.dataset.go === "group") { S.view = "group"; history.replaceState(null, "", "#group"); } render(); window.scrollTo({ top: 0, behavior: "smooth" }); }
+  else if (act === "cancelEdit") { S.skipPreserve = true; S.editing = null; S.showGroupForm = false; render(); }
+  else if (act === "delGroup") {
+    if (b.dataset.confirm !== "1") { b.dataset.confirm = "1"; b.textContent = "Tap again to delete"; return; }
+    const id = b.dataset.id; S.editing = null; S.skipPreserve = true;
+    await delDoc("groups", id); await delDoc("progress", id); render(); toast("Group deleted");
+  }
+  else if (act === "roomsOf") { S.roomFilter.g = b.dataset.id; setView("bilik"); }
+  else if (act === "cycle") {
+    const r = S.rooms.find(x => x.id === b.dataset.id); if (!r) return;
+    const nx = STATUS[(STATUS.indexOf(r.status || "kosong") + 1) % STATUS.length];
+    r.status = nx; S.pop = "room:" + r.id; render();
+    const { id, ...rest } = r; putDoc("rooms", id, { ...rest, status: nx, kemaskini: new Date().toISOString() });
+  }
+  else if (act === "delRoom") { if (b.dataset.confirm !== "1") { b.dataset.confirm = "1"; b.textContent = "Sure?"; return; } delDoc("rooms", b.dataset.id); }
+  else if (act === "rM") { S.roomFilter.m = b.dataset.m; render(); }
+  else if (act === "qf") { const k = b.dataset.k; S.roomFilter[k] = S.roomFilter[k] === b.dataset.v ? "" : b.dataset.v; S.lastView = null; render(); }
+  else if (act === "qfClear") { Object.assign(S.roomFilter, { m: "", f: "", s: "", n: "" }); S.lastView = null; render(); }
+  else if (act === "rC") { S.roomFilter.c = b.dataset.c; render(); }
+  else if (act === "roomForm") { S.showRoomForm = true; S.skipPreserve = true; render(); }
+  else if (act === "roomFormClose") { S.showRoomForm = false; render(); }
+  else if (act === "toggleImport") { S.showImport = !S.showImport; render(); }
+  else if (act === "import") {
+    const txt = document.getElementById("importBox").value.trim(); if (!txt) return;
+    let ok = 0; const bad = [];
+    for (const line of txt.split(/\r?\n/)) {
+      if (!line.trim()) continue;
+      const parts = line.split(line.includes("\t") ? "\t" : ",").map(s => s.trim());
+      const [kod, hotel, bilik, jenis, ...rest] = parts;
+      const g = S.groups.find(x => (x.kod || "").toLowerCase() === (kod || "").toLowerCase());
+      if (!g || !hotel || !bilik) { bad.push(kod || line.slice(0, 12)); continue; }
+      await putDoc("rooms", newId("r"), { groupId: g.id, hotel, bilik, jenis: jenis || "", penghuni: rest.join(", ").replace(/\s*;\s*/g, "; "), status: "kosong" });
+      ok++;
+    }
+    S.showImport = false; S.skipPreserve = true; render();
+    toast(ok + " rooms imported" + (bad.length ? " · " + bad.length + " lines skipped (group code not found)" : ""));
+  }
+  else if (act === "hDay") { S.homeDate = addDays(S.homeDate || todayStr(), +b.dataset.d); render(); }
+  else if (act === "hToday") { S.homeDate = null; render(); }
+  else if (act === "pendToggle") { S.pendOpen = !S.pendOpen; render(); }
+  else if (act === "roomsNoNo") { Object.assign(S.roomFilter, { g: b.dataset.gid, h: "", c: "", q: "", m: "", f: "", s: "", n: "1" }); setView("bilik"); }
+  else if (act === "goAduan") { S.aduanFilter.st = "buka"; setView("aduan"); }
+  else if (act === "aduanOf") { S.skipPreserve = true; S.aduanFilter.g = b.dataset.id; S.aduanPrefill = { groupId: b.dataset.id }; setView("aduan"); }
+  else if (act === "aduanRoom") { S.skipPreserve = true; const r = S.rooms.find(x => x.id === b.dataset.id); if (r) { S.aduanPrefill = { groupId: r.groupId, bilik: roomLabel(r), kategori: "Room: air-con" }; setView("aduan"); } }
+  else if (act === "clearPrefill") { S.skipPreserve = true; S.aduanPrefill = null; render(); }
+  else if (act === "aF") { S.aduanFilter.st = b.dataset.st; S.lastView = null; render(); }
+  else if (act === "noteToggle") { S.noteOpen = S.noteOpen === b.dataset.id ? null : b.dataset.id; render(); const el = document.getElementById("note-" + b.dataset.id); if (el) el.focus(); }
+  else if (act === "saveNote") {
+    const a = S.aduan.find(x => x.id === b.dataset.id); const el = document.getElementById("note-" + b.dataset.id); const nota = el && el.value.trim();
+    if (!a || !nota) return;
+    const { id, ...rest } = a; const upd = { ...rest, tindakan: [...(a.tindakan || []), { pada: new Date().toISOString(), nota }], status: a.status === "baru" ? "tindakan" : a.status };
+    S.noteOpen = null; S.skipPreserve = true; Object.assign(a, upd); render(); putDoc("aduan", id, upd); toast("Note saved");
+  }
+  else if (act === "aSt") {
+    const a = S.aduan.find(x => x.id === b.dataset.id); if (!a) return;
+    const st = b.dataset.st; const now = new Date().toISOString();
+    const { id, ...rest } = a; const upd = { ...rest, status: st, selesaiPada: st === "selesai" ? now : "", tindakan: [...(a.tindakan || []), { pada: now, nota: st === "selesai" ? "Marked resolved" : a.status === "selesai" ? "Reopened" : "Handling started" }] };
+    Object.assign(a, upd); render(); putDoc("aduan", id, upd); toast(st === "selesai" ? "Complaint resolved" : "Status updated");
+  }
+  else if (act === "delAduan") { if (b.dataset.confirm !== "1") { b.dataset.confirm = "1"; b.textContent = "Sure?"; return; } delDoc("aduan", b.dataset.id); }
+  else if (act === "tpl") { S.tpl = b.dataset.k; render(); }
+  else if (act === "editDay") { const [gid, n] = b.dataset.k.split(":"); const g = gById(gid); if (!g) return; S.editDay = b.dataset.k; S.editDraft = tplOf(g)[+n].items.map(x => ({ ...x })); S.skipPreserve = true; render(); }
+  else if (act === "edCancel") { S.editDay = null; S.editDraft = null; S.skipPreserve = true; render(); }
+  else if (act === "edAdd") { S.editDraft.push({ t: "", a: "", tr: "", k: "" }); S.skipPreserve = true; render(); setTimeout(() => document.getElementById("ed-" + (S.editDraft.length - 1) + "-t")?.focus(), 30); }
+  else if (act === "edDel") { S.editDraft.splice(+b.dataset.i, 1); S.skipPreserve = true; render(); }
+  else if (act === "edMove") { const i = +b.dataset.i, j = i + +b.dataset.d; const d = S.editDraft; [d[i], d[j]] = [d[j], d[i]]; S.skipPreserve = true; render(); }
+  else if (act === "resetJadual") {
+    if (b.dataset.confirm !== "1") { b.dataset.confirm = "1"; b.textContent = "Tap again: undo all edits for this group"; return; }
+    const g = gById(b.dataset.id); if (!g) return; const { id, jadual, ...rest } = g; delete g.jadual; render(); putDoc("groups", id, rest); toast("Back to the package schedule");
+  }
+  else if (act === "trToggle") { const t = trainTrips().find(x => x.id === b.dataset.id); const def = t && t.date === todayStr(); S.openTr[b.dataset.id] = !(S.openTr[b.dataset.id] ?? def); render(); }
+  else if (act === "trF") { S.trFilter = b.dataset.f; S.lastView = null; render(); }
+  else if (act === "board" || act === "boardAll") {
+    const t = trainTrips().find(x => x.id === b.dataset.id); if (!t) return;
+    const bd = { ...(S.board[t.id] || {}) }; const now = new Date().toISOString();
+    if (act === "board") { if (bd[b.dataset.pid]) delete bd[b.dataset.pid]; else { bd[b.dataset.pid] = now; S.pop = "board:" + t.id + b.dataset.pid; } }
+    else { const all = t.pax.every(p => bd[p.id]); t.pax.forEach(p => { if (all) delete bd[p.id]; else if (!bd[p.id]) bd[p.id] = now; }); }
+    S.board[t.id] = bd; render(); putDoc("keretapi", t.id, { groupId: t.g.id, naik: bd });
+  }
+  else if (act === "itToggle") { S.just = b.dataset.id; S.openIt[b.dataset.id] = !S.openIt[b.dataset.id]; render(); }
+  else if (act === "itAll") { const on = b.dataset.v === "1"; S.groups.forEach(g => { S.openIt[g.id] = on; }); render(); }
+  else if (act === "itF") { S.itFilter = b.dataset.f; S.lastView = null; render(); }
+  else if (act === "dayToggle") { S.just = b.dataset.k; const k = b.dataset.k; const [gid, n] = k.split(":"); const g = gById(gid); const def = g && groupDay(g, todayStr()) === +n; S.openDay[k] = !(S.openDay[k] ?? def); render(); }
+  else if (act === "daysAll") { const g = gById(b.dataset.id); if (g) tplOf(g).forEach((_, n) => { S.openDay[g.id + ":" + n] = b.dataset.v === "1"; }); render(); }
+  else if (act === "copy") {
+    const t = b.dataset.t;
+    try { await navigator.clipboard.writeText(t); toast("Copied " + t); }
+    catch (err) { const el = b.parentElement.querySelector(".tel"); const rg = document.createRange(); rg.selectNodeContents(el); const s = getSelection(); s.removeAllRanges(); s.addRange(rg); toast("Number selected. Use your phone's Copy."); }
+  }
+});
+document.addEventListener("change", e => {
+  if (e.target.id === "homeDate" && e.target.value) { S.homeDate = e.target.value === todayStr() ? null : e.target.value; render(); }
+  if (e.target.id === "datePick" && e.target.value) { S.date = e.target.value; render(); }
+  if (e.target.dataset.afilter) { S.aduanFilter[e.target.dataset.afilter] = e.target.value; render(); }
+  if (e.target.id === "ad-g") { S.aduanPrefill = { ...(S.aduanPrefill || {}), groupId: e.target.value }; }
+  if (e.target.dataset.room) {
+    const r = S.rooms.find(x => x.id === e.target.dataset.room); const v = e.target.value.trim();
+    if (r && v !== (r.bilik || "")) { r.bilik = v; const { id, ...rest } = r; putDoc("rooms", id, { ...rest, bilik: v, kemaskini: new Date().toISOString() }); toast(v ? "Room " + v + " saved" : "Room no. cleared"); }
+    return;
+  }
+  if (e.target.dataset.filter === "g" || e.target.dataset.filter === "h") { S.roomFilter[e.target.dataset.filter] = e.target.value; render(); }
+});
+document.addEventListener("keydown", e => { if (e.key === "Enter" && e.target.dataset.room) { e.preventDefault(); e.target.blur(); } });
+document.addEventListener("input", e => { if (e.target.dataset.ed != null && S.editDraft) S.editDraft[+e.target.dataset.ed][e.target.dataset.fld] = e.target.value; });
+document.addEventListener("change", e => { if (e.target.dataset.ed != null && S.editDraft) S.editDraft[+e.target.dataset.ed][e.target.dataset.fld] = e.target.value; });
+document.addEventListener("input", e => { if (e.target.id === "sq") { S.sq = e.target.value; renderSheet(); } });
+document.addEventListener("keydown", e => { if (e.key === "Escape") { if (S.lightbox) { S.lightbox = null; renderLightbox(); } else if (S.sheet) { S.sheet = null; renderSheet(); } } });
+document.getElementById("photoInput").addEventListener("change", async e => {
+  const file = e.target.files && e.target.files[0]; const pid = S.photoFor; if (!file || !pid || !assetsNs) return;
+  const cap = (document.getElementById("phCap")?.value || "").trim();
+  toast("Uploading photo…");
+  try {
+    const blob = await shrink(file); const res = await assetsNs.upload(blob);
+    const list = [...(S.jemaah[pid]?.gambar || []), { id: res.id, cap, at: new Date().toISOString() }];
+    saveJemaahPatch(pid, { gambar: list }); const c = document.getElementById("phCap"); if (c) c.value = "";
+    renderPhotos(pid); toast("Photo added");
+  } catch (err) {
+    const code = err && err.code; toast(code === "too_large" || code === "payload_too_large" ? "That photo is too big. Try a smaller one." : code === "unsupported_type" ? "That file type isn't supported. Use a JPG or PNG." : code === "not_granted" ? "You need Editor access to add photos." : code === "quota_exceeded" ? "Photo storage is full." : "Couldn't upload. Try again.");
+  }
+});
+document.addEventListener("input", e => { if (e.target.dataset.filter === "q") { S.roomFilter.q = e.target.value; render(); } });
+document.addEventListener("submit", async e => {
+  e.preventDefault();
+  const fd = Object.fromEntries(new FormData(e.target).entries());
+  S.skipPreserve = true;
+  if (e.target.id === "dayForm") {
+    const g = gById(e.target.dataset.g); const n = +e.target.dataset.n; if (!g) return;
+    const items = S.editDraft.filter(x => (x.a || "").trim()).map(x => { const o = { t: x.t || "", a: x.a.trim(), tr: (x.tr || "").trim() || "—" }; if (x.k) o.k = x.k; if ((x.d || "").trim()) o.d = x.d.trim(); return o; });
+    items.sort((a, b) => (a.t || "99").localeCompare(b.t || "99"));
+    const cur = tplOf(g); const oldItems = cur[n].items;
+    const sched = cur.map((d, k) => ({ ...d, lbl: dayLabel(d), items: (k === n ? items : d.items).map(x => ({ ...x })), ...(k === n ? { edited: true } : {}) }));
+    const p = prog(g.id); const done = { ...p.done };
+    oldItems.forEach((_, i) => delete done[pKey(g.id, n, i)]);
+    items.forEach((it, j) => { const i = oldItems.findIndex((o, oi) => o.a === it.a && p.done[pKey(g.id, n, oi)]); if (i >= 0) done[pKey(g.id, n, j)] = p.done[pKey(g.id, n, i)]; });
+    const { id, ...rest } = g; g.jadual = sched; S.progress[g.id] = { done, sent: p.sent };
+    S.editDay = null; S.editDraft = null; S.skipPreserve = true; render();
+    await putDoc("groups", id, { ...rest, jadual: sched }); putDoc("progress", id, { done, sent: p.sent });
+    toast("Schedule updated for " + (g.kod || g.nama));
+    return;
+  }
+  if (e.target.id === "personForm") {
+    const id = e.target.dataset.pid; const p = people().get(id); if (!p) return;
+    const flags = {}; e.target.querySelectorAll("[data-act=toggleFlag]").forEach(x => { flags[x.dataset.f] = x.getAttribute("aria-pressed") === "true"; });
+    const doc = { groupId: p.groupId, nama: p.nama, flags, gambar: S.jemaah[id]?.gambar || [], nota: (fd.nota || "").trim(), appt: flags.hospital ? { tarikh: fd.tarikh || "", masa: fd.masa || "", tempat: (fd.tempat || "").trim() } : null, kemaskini: new Date().toISOString() };
+    S.jemaah[id] = { ...doc, id }; S.sheet = null; render(); putDoc("jemaah", id, doc); toast("Saved " + displayName(p.nama));
+    return;
+  }
+  if (e.target.id === "groupForm") {
+    if (!fd.kod && !fd.nama) { toast("Enter at least a group code or name"); return; }
+    const id = e.target.dataset.id || newId("g");
+    fd.pax = fd.pax ? +fd.pax : "";
+    const prev = e.target.dataset.id && gById(e.target.dataset.id); if (prev && prev.arkib) fd.arkib = true; if (prev && Array.isArray(prev.jadual) && prev.pakej === fd.pakej) fd.jadual = prev.jadual;
+    await putDoc("groups", id, fd);
+    S.editing = null; S.showGroupForm = false; S.skipPreserve = true; render(); toast(e.target.dataset.id ? "Group updated" : "Group added");
+  }
+  if (e.target.id === "aduanForm") {
+    if (!fd.groupId || !fd.keterangan.trim()) { toast("Choose a group and describe the problem"); return; }
+    await putDoc("aduan", newId("a"), { ...fd, keterangan: fd.keterangan.trim(), status: "baru", dilapor: new Date().toISOString(), selesaiPada: "", tindakan: [] });
+    S.aduanPrefill = null; S.aduanFilter.st = "buka"; S.skipPreserve = true; render(); toast("Complaint logged");
+  }
+  if (e.target.id === "roomForm") {
+    if (!fd.groupId) { toast("Choose a group first"); return; }
+    fd.penghuni = (fd.penghuni || "").replace(/\s*;\s*/g, "; ");
+    await putDoc("rooms", newId("r"), { ...fd, status: "kosong" });
+    toast("Room " + fd.bilik + " added");
+    const rb = document.getElementById("rm-b"), rp = document.getElementById("rm-p"); if (rb) { rb.value = ""; rp.value = ""; rb.focus(); }
+  }
+});
+
+(function init() {
+  S.date = todayStr();
+  try { const hm = localStorage.getItem("umrah-ops-harimode"); if (hm) S.hariMode = hm; } catch (e) {}
+  const h = location.hash.slice(1); let v = null; try { v = localStorage.getItem("umrah-ops-view"); } catch (e) {}
+  S.view = h && VIEWS.includes(h) && h !== "home" ? h : "home"; if (location.hash !== "#" + S.view) history.replaceState(null, "", "#" + S.view);
+  tickClock(); setInterval(tickClock, 15000);
+  window.addEventListener("online", syncUI); window.addEventListener("offline", syncUI); setInterval(syncUI, 5000);
+  boot();
+})();
+</script>
+</body>
+</html>
